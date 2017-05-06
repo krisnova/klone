@@ -1,0 +1,8 @@
+
+[[dependencies]]
+  branch = "master"
+  name = "github.com/fatih/color"
+
+[[dependencies]]
+  branch = "master"
+  name = "github.com/spf13/cobra"
