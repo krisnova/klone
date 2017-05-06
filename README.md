@@ -17,6 +17,8 @@ Will add the remote `kris-nova/kops` as `origin`
 Will add the remote `kubernetes/kops` as `upstream`
 Will `cd` to the new directory after `klone`
 
+### Rebase a project
+
 ```
 klone rebase <path>
 klone r      <path>
