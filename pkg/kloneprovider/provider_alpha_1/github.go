@@ -113,7 +113,26 @@ func (s *GitServer) Authenticate(credentials kloneprovider.GitServerCredentials)
 	return nil
 }
 
-// GetRepo is the most effecient way to look up a repository exactly by it's name
+// GetRepoByOwner is the most effecient way to look up a repository exactly by it's name and owner
+func (s *GitServer) GetRepoByOwner(owner, name string) (kloneprovider.Repo, error) {
+	r := &Repo{}
+	repo, _, err := s.client.Repositories.Get(s.ctx, owner, name)
+	if err != nil {
+		return r, err
+	}
+	if repo == nil {
+		return r, nil
+	}
+	r.impl = repo
+	r.assumedOwner = owner
+	if *repo.Fork && repo.Parent.Owner != nil {
+		r.forkedFrom = &Repo{impl: repo.Parent}
+	}
+	return r, nil
+
+}
+
+// GetRepo is the most effecient way to look up a repository exactly by it's name and assumed owner (you)
 func (s *GitServer) GetRepo(name string) (kloneprovider.Repo, error) {
 	r := &Repo{}
 	repo, _, err := s.client.Repositories.Get(s.ctx, s.username, name)

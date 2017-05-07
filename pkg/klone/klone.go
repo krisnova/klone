@@ -30,6 +30,7 @@ import (
 	"github.com/kris-nova/klone/pkg/klone/kloners"
 	"github.com/kris-nova/klone/pkg/local"
 	"fmt"
+	"strings"
 )
 
 type Style int
@@ -70,10 +71,27 @@ func Klone(name string) error {
 		return err
 	}
 	local.Printf("Reticulating splines")
-	repo, err := srv.GetRepo(name)
-	if err != nil {
-		return err
+
+	var repo kloneprovider.Repo
+	// Logic for "kops" and "kris-nova/kops" queries
+	if strings.Contains(name, "/") {
+		spl := strings.Split(name, "/")
+		if len(spl) != 2 {
+			return fmt.Errorf("Invalid repository name: %s", name)
+		}
+		owner := spl[0]
+		rname := spl[1]
+		repo, err = srv.GetRepoByOwner(owner, rname)
+		if err != nil {
+			return err
+		}
+	} else {
+		repo, err = srv.GetRepo(name)
+		if err != nil {
+			return err
+		}
 	}
+
 	if repo == nil {
 		local.Printf("Unable to lookup repo: %s", name)
 		return fmt.Errorf("Invalid repository name: %s", name)
@@ -82,19 +100,20 @@ func Klone(name string) error {
 
 	// Style
 	var s Style
-	if repo.Owner() == srv.OwnerName() && repo.ForkedFrom() == nil {
+	if (repo.Owner() == srv.OwnerName()) && (repo.ForkedFrom() == nil) {
 		// It's ours, and we have no parent - just a normal klone
 		local.Printf("[OWNER] klone [%s/%s]", repo.Owner, repo.Name())
 		s = StyleOwner
-	} else if repo.Owner() == srv.OwnerName() && repo.ForkedFrom() != nil {
+	} else if (repo.Owner() == srv.OwnerName()) && (repo.ForkedFrom() != nil) {
 		// It's ours, and we have a parent - so we are kloning a fork
 		local.Printf("[ALREADY-FORKED] klone [%s/%s] forked from [%s/%s]", repo.Owner(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
 		s = StyleAlreadyForked
-	} else if repo.Owner() != srv.OwnerName() && repo.ForkedFrom() == nil {
+	} else if (repo.Owner() != srv.OwnerName()) && (repo.ForkedFrom() == nil) {
 		// It's not ours, and we have no parent. We are totally going to fork this repo.
-		local.Printf("[NEEDS-FORK] klone [%s/%s] forked from [%s/%s]", srv.OwnerName(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
+		local.Printf("[NEEDS-FORK] klone [%s/%s] forked from [%s/%s]", srv.OwnerName(), repo.Name(), repo.Owner(), repo.Name())
 		s = StyleNeedsFork
-	} else if repo.Owner() != srv.OwnerName() && repo.ForkedFrom() != nil {
+	} else if (repo.Owner() != srv.OwnerName()) && (repo.ForkedFrom() != nil) {
+		fmt.Println(repo.ForkedFrom())
 		// It's not ours (but maybe we have access) and we have a parent
 		local.Printf("[TRYING-FORK] klone [%s/%s] forked from [%s/%s]", srv.OwnerName(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
 		s = StyleTryingFork

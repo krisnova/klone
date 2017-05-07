@@ -90,6 +90,7 @@ type GitServer interface {
 	GetCredentials() (GitServerCredentials, error)
 	GetRepos() (map[string]Repo, error)
 	GetRepo(string) (Repo, error)
+	GetRepoByOwner(owner, name string) (Repo, error)
 	OwnerName() string
 	OwnerEmail() string
 }

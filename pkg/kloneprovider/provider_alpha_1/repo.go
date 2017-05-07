@@ -28,8 +28,9 @@ import (
 )
 
 type Repo struct {
-	impl       *github.Repository
-	forkedFrom *Repo
+	impl         *github.Repository
+	forkedFrom   *Repo
+	assumedOwner string
 }
 
 func (r *Repo) SetImplementation(impl interface{}) {
@@ -47,6 +48,9 @@ func (r *Repo) Language() (string) {
 	return *r.impl.Language
 }
 func (r *Repo) Owner() (string) {
+	if r.impl == nil {
+		return r.assumedOwner
+	}
 	return *r.impl.Owner.Login
 }
 func (r *Repo) Name() (string) {
@@ -56,6 +60,9 @@ func (r *Repo) Description() (string) {
 	return *r.impl.Description
 }
 func (r *Repo) ForkedFrom() (kloneprovider.Repo) {
+	if r.forkedFrom == nil {
+		return nil
+	}
 	return r.forkedFrom
 }
 func (r *Repo) GetRepoController() (kloneprovider.RepoController) {
