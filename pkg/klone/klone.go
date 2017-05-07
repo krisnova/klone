@@ -109,9 +109,18 @@ func Klone(name string) error {
 		local.Printf("[ALREADY-FORKED] klone [%s/%s] forked from [%s/%s]", repo.Owner(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
 		s = StyleAlreadyForked
 	} else if (repo.Owner() != srv.OwnerName()) && (repo.ForkedFrom() == nil) {
-		// It's not ours, and we have no parent. We are totally going to fork this repo.
-		local.Printf("[NEEDS-FORK] klone [%s/%s] forked from [%s/%s]", srv.OwnerName(), repo.Name(), repo.Owner(), repo.Name())
-		s = StyleNeedsFork
+		// It's not ours, and we have no parent. We are totally going to fork this repo (as long as we haven't already)
+		possible, err := srv.GetRepoByOwner(srv.OwnerName(), repo.Name())
+		if err != nil {
+			local.RecoverableErrorf("Unable to find [%s/%s]: %v", srv.OwnerName(), repo.Name(), err)
+		}
+		if possible == nil {
+			local.Printf("[NEEDS-FORK] klone [%s/%s] forked from [%s/%s]", srv.OwnerName(), repo.Name(), repo.Owner(), repo.Name())
+			s = StyleNeedsFork
+		} else {
+			local.Printf("[ALREADY-FORKED] klone [%s/%s] forked from [%s/%s]", possible.Owner(), possible.Name(), possible.ForkedFrom().Owner(), possible.ForkedFrom().Name())
+			s = StyleAlreadyForked
+		}
 	} else if (repo.Owner() != srv.OwnerName()) && (repo.ForkedFrom() != nil) {
 		fmt.Println(repo.ForkedFrom())
 		// It's not ours (but maybe we have access) and we have a parent

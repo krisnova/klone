@@ -118,6 +118,7 @@ func (s *GitServer) GetRepoByOwner(owner, name string) (kloneprovider.Repo, erro
 	r := &Repo{}
 	repo, _, err := s.client.Repositories.Get(s.ctx, owner, name)
 	if err != nil {
+		local.Printf("Unable to find repo [%s/%s]", owner, name)
 		return r, err
 	}
 	if repo == nil {
@@ -137,6 +138,7 @@ func (s *GitServer) GetRepo(name string) (kloneprovider.Repo, error) {
 	r := &Repo{}
 	repo, _, err := s.client.Repositories.Get(s.ctx, s.username, name)
 	if err != nil {
+		local.Printf("Unable to find repo [%s/%s]", s.username, name)
 		return r, err
 	}
 	if repo == nil {
