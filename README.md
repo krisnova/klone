@@ -1,8 +1,75 @@
 # klone
 
+`klone` helps you make quick and easy work out of contributing to a GitHub repository.
+
+##### This works:
+
+```
+klone kubernetes/kubernetes
+```
+
+##### And here is what it does:
+
+ - Authenticates you with your GitHub account
+   - Sure, you can set `$VARIABLES` here, but just run the command and `klone` will prompt you and cache in `~/.klone/auth`
+ - Looks up `kubernetes/kubernetes` at runtime
+   - Then, discovers it's a GitHub repository
+ - Checks your account to see if you have already forked it
+   - Don't worry if you haven't we will take care of that
+ - Reasons about what needs to be done to get things to a desired state
+ - Looks up a `kloner` based on things like :
+   - What **Programming Language** the repository is written in?
+   - Does the repository explicitly call out a `.Klonefile`?
+   - Don't worry - we have a simple `kloner` we always default to..
+ - Checks your `git` configuration (yes we use the C library, so it's a real check)
+ - Satisfies all concerns with your unique `git` configuration, and our desired state
+ - Makes the desired state so (we actually `git clone` a repo, and `git checkout` out for you)
+ - Drop you off (`cd`) in your new local workspace
+ - You can now `git push origin master` to push to your fork
+ - You can also `git rebase upstream/master` to rebase your fork
+
+
+GitHub is happy. You are happy. No conflicts. Just good clean contribution, the way you want it.
+
+### Desired State
+
+After a `klone` you should have the following `git remote -v` configuration
+
+| Remote        | URL                                         |
+| ------------- | ------------------------------------------- |
+| origin        | git@github.com:$owner/$repo                 |
+| upstream      | git@github.com:$parent/$repo                |
+
+The goal here is also make it so your GitHub account is happy with this new configuration and you can
+
+ - `push`
+ - `fetch`
+ - `pull`
+ - `rebase`
+ - `etc..`
+
+without much trouble.
+
+
+
 ### GitHub Credentials
 
 `klone` will access the GitHub API either by your username and password, or via an access token.
+
+**Ideally you shouldn't do anything here.**
+Just run `klone` and enter your username and password. (Don't worry if you use MFA, we will prompt you)
+We store them in memory for the duration of the program's execution.
+We never write them to disk.
+
+`klone` will (and only with your account credentials) then create a unique Auth token, that we will use moving forward.
+Delete it at any time, and yes we leave a very visible note on the token letting you know where it's from.
+
+If you want it back, just run `klone` again.
+
+We **will however** cache your auth token to disk in `~/.klone/auth`
+Go ahead and delete it whenever you like, we will delete/create tokens as necessary and never leave a mess.
+
+Also there are some friendly Environmental Variables you can use here
 
 ##### Set Access Token
 
@@ -12,23 +79,12 @@ export KLONE_GITHUBTOKEN="@kris-nova"
 
 
 ```bash
+
+# Both of these work fine:
 export KLONE_GITHUBUSER="@kris-nova"
 #export KLONE_GITHUBUSER="kris@nivenly.com"
+
+# Not encrypted so be careful:
 export KLONE_GITHUBPASS="password"
-```
-
-
-### Klone a project
 
 ```
-klone kops
-```
-
- - Will check my `.gitconfig` and discover that I am `@kris-nova`
- - Will look up that I have a repository called `kops`
- - Will discover that the repository was forked from `kubernetes/kops`
- - Will check if either `~` or `$GOPATH` has a `.gitmodules` file, and add the repo to `.gitmodules`
- - Will checkout the `kris-nova/kops` codebase to `$GOPATH/src/github.com/kris-nova/kops`
- - Will add the remote `kris-nova/kops` as `origin`
- - Will add the remote `kubernetes/kops` as `upstream`
- - Will `cd` to the new directory after `klone`

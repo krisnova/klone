@@ -69,7 +69,7 @@ func PrintExclaim(msg string) {
 }
 
 func PrintError(err error) {
-	fmt.Printf("%v\n", err)
+	color.Red("%v\n", err)
 }
 
 func PrintErrorExit(err error) {

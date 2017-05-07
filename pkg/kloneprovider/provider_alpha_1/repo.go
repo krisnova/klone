@@ -31,6 +31,7 @@ type Repo struct {
 	impl         *github.Repository
 	forkedFrom   *Repo
 	assumedOwner string
+	lang         string
 }
 
 func (r *Repo) SetImplementation(impl interface{}) {
@@ -45,7 +46,7 @@ func (r *Repo) HttpsCloneUrl() (string) {
 	return *r.impl.CloneURL
 }
 func (r *Repo) Language() (string) {
-	return *r.impl.Language
+	return *r.impl.Source.Language
 }
 func (r *Repo) Owner() (string) {
 	if r.impl == nil {
