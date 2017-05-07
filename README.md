@@ -62,11 +62,24 @@ without much trouble.
 `klone` is designed to offer opinionated `kloners` for many programming languages.
 
  - [Go](https://github.com/kris-nova/klone#go)
+ - [Go](https://github.com/kris-nova/klone#simple)
+ - [Go](https://github.com/kris-nova/klone#c-kernel-module)
+
+## C Kernel Module
+
+ **Will** attempt to reason about your architecture and check out source accordingly.
+
+    | Architecture  | Path                                        |
+    | ------------- | ------------------------------------------- |
+    | Linux         | /usr/local/src                              |
+    | FreeBSD       | /usr/src                                    |
+
+**Will** still create `origin` and `upstream` (even if you are the only owner!)
 
 ## Go
 
- - `klone` **will** respect your `$GOPATH`'s (Yes, more than one)
- - `klone` **will** check out the **parent** repository into your gopath (so it compiles), but you will **always be** ``origin``!
+ - **Will** respect your `$GOPATH`'s (Yes, more than one)
+ - **Will** check out the **parent** repository into your gopath (so it compiles), but you will **always be** ``origin``!
 
 Ex:
 
@@ -74,8 +87,8 @@ Ex:
 klone golang/dep
 ```
 
- - Will ensure you have a working fork of `golang/dep` at `$owner/dep` in GitHub
- - Will checkout `$owner/dep` to `golang/dep`
+ - **Will** ensure you have a working fork of `golang/dep` at `$owner/dep` in GitHub
+ - **Will** checkout `$owner/dep` to `golang/dep`
 
  (Hint: `$owner` is your GitHub login)
 
@@ -86,6 +99,11 @@ klone golang/dep
 
 
 Also with custom language `kloner`'s and `.Klonefile`'s you could even have `klone` run custom logic **after** cloning (like checkout out dependencies!)
+
+## Simple
+
+ - `klone` will by default clone to your `$HOME` (`~`) directory
+ - `klone` will still create `origin` and `upstream` (even if you are the only owner!)
 
 
 # GitHub Credentials
