@@ -28,7 +28,8 @@ import (
 )
 
 type Repo struct {
-	impl *github.Repository
+	impl       *github.Repository
+	forkedFrom *Repo
 }
 
 func (r *Repo) SetImplementation(impl interface{}) {
@@ -36,32 +37,32 @@ func (r *Repo) SetImplementation(impl interface{}) {
 	r.impl = gh
 }
 
-func (r *Repo) GitCloneUrl() (string, error) {
-	return "", nil
+func (r *Repo) GitCloneUrl() (string) {
+	return *r.impl.GitURL
 }
-func (r *Repo) HttpsCloneUrl() (string, error) {
-	return "", nil
+func (r *Repo) HttpsCloneUrl() (string) {
+	return *r.impl.CloneURL
 }
-func (r *Repo) Language() (string, error) {
-	return "", nil
+func (r *Repo) Language() (string) {
+	return *r.impl.Language
 }
-func (r *Repo) Owner() (string, error) {
-	return "", nil
+func (r *Repo) Owner() (string) {
+	return *r.impl.Owner.Login
 }
-func (r *Repo) Name() (string, error) {
-	return *r.impl.Name, nil
+func (r *Repo) Name() (string) {
+	return *r.impl.Name
 }
-func (r *Repo) Description() (string, error) {
-	return "", nil
+func (r *Repo) Description() (string) {
+	return *r.impl.Description
 }
-func (r *Repo) ForkedFrom() (kloneprovider.Repo, error) {
-	return &Repo{}, nil
+func (r *Repo) ForkedFrom() (kloneprovider.Repo) {
+	return r.forkedFrom
 }
-func (r *Repo) GetRepoController() (kloneprovider.RepoController, error) {
-	return &RepoController{}, nil
+func (r *Repo) GetRepoController() (kloneprovider.RepoController) {
+	return &RepoController{}
 }
-func (r *Repo) GetKlonefile() ([]byte, error) {
-	return []byte(""), nil
+func (r *Repo) GetKlonefile() ([]byte) {
+	return []byte("")
 }
 
 type RepoController struct {

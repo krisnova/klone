@@ -58,6 +58,16 @@ func Printf(format string, a ...interface{}) {
 	color.Green(b, a...)
 }
 
+func PrintExclaimf(format string, a ...interface{}) {
+	b := fmt.Sprintf("[klone]:  %s", format)
+	color.Cyan(b, a...)
+}
+
+func PrintExclaim(msg string) {
+	b := fmt.Sprintf("[klone]:  %s", msg)
+	color.Cyan(b)
+}
+
 func PrintError(err error) {
 	fmt.Printf("%v\n", err)
 }
@@ -65,6 +75,11 @@ func PrintError(err error) {
 func PrintErrorExit(err error) {
 	color.Red(err.Error())
 	os.Exit(1)
+}
+
+func PrintFatal(msg string) {
+	color.Red(msg)
+	os.Exit(-1)
 }
 
 func PrintErrorExitCode(err error, code int) {

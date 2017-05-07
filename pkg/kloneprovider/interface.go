@@ -61,15 +61,15 @@ type GitOperation interface {
 
 // Repo represents a git repository
 type Repo interface {
-	GitCloneUrl() (string, error)
-	HttpsCloneUrl() (string, error)
-	Language() (string, error)
-	Owner() (string, error)
-	Name() (string, error)
-	Description() (string, error)
-	ForkedFrom() (Repo, error)
-	GetRepoController() (RepoController, error)
-	GetKlonefile() ([]byte, error)
+	GitCloneUrl() (string)
+	HttpsCloneUrl() (string)
+	Language() (string)
+	Owner() (string)
+	Name() (string)
+	Description() (string)
+	ForkedFrom() (Repo)
+	GetRepoController() (RepoController)
+	GetKlonefile() ([]byte)
 	SetImplementation(interface{})
 }
 
@@ -88,7 +88,10 @@ type RepoController interface {
 type GitServer interface {
 	Authenticate(GitServerCredentials) (error)
 	GetCredentials() (GitServerCredentials, error)
-	GetRepos() ([]Repo, error)
+	GetRepos() (map[string]Repo, error)
+	GetRepo(string) (Repo, error)
+	OwnerName() string
+	OwnerEmail() string
 }
 
 // GitServerCredentials represents necessary information to auth with a GitServer

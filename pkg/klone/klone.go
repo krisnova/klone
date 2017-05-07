@@ -25,70 +25,88 @@
 package klone
 
 import (
-	"strings"
 	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/klone/kloners/simple"
 	"github.com/kris-nova/klone/pkg/klone/kloners"
 	"github.com/kris-nova/klone/pkg/local"
+	"fmt"
+)
+
+type Style int
+
+const (
+	StyleOwner         Style = 1
+	StyleAlreadyForked Style = 2
+	StyleNeedsFork     Style = 3
+	StyleTryingFork    Style = 4
 )
 
 // Klone is the main entry point for a klone routine. This
 // is the procedural logic for "kloning" a git repository.
-// The logic here is
-// 1. Pick a klone provider
-// 2. Connect to the git server
-// 3. Parse git configuration
-// 4. Attempt to find a repo that matches our input
-// 5. Call "kloneRepo" on that repo
 func Klone(name string) error {
-	local.Printf("kloning [%s]", name)
-	namelower := strings.ToLower(name)
+	local.Printf("Kloning [%s]", name)
 	provider, err := NewProviderAlpha1()
 	if err != nil {
 		return err
 	}
-
+	local.Printf("Loading git configuration")
 	cfg, err := provider.GetGitConfig()
 	if err != nil {
 		return err
 	}
-
-	// Server connection
+	local.Printf("Loading server")
 	srv, err := provider.GetGitServer()
 	if err != nil {
 		return err
 	}
+	local.Printf("Parsing credentials")
 	crds, err := srv.GetCredentials()
 	if err != nil {
 		return err
 	}
+	local.Printf("Authenticating")
 	err = srv.Authenticate(crds)
 	if err != nil {
 		return err
 	}
-
-	repos, err := srv.GetRepos()
+	local.Printf("Reticulating splines")
+	repo, err := srv.GetRepo(name)
 	if err != nil {
 		return err
 	}
-
-	// Todo (@kris-nova) We can have a goroutine build a fabulous hash map
-	// on repo name and pointer to repo at runtime. We can then use the hash
-	// map to find our repo in O(n*log(n)).
-	for _, repo := range repos {
-		name, err := repo.Name()
-		local.Printf("Checking repo: %s", name)
-		if err != nil {
-			return err
-		}
-		rlowername := strings.ToLower(name)
-		if namelower == rlowername {
-			if err = kloneRepo(repo, cfg); err != nil {
-				return err
-			}
-
-		}
+	if repo == nil {
+		local.Printf("Unable to lookup repo: %s", name)
+		return fmt.Errorf("Invalid repository name: %s", name)
 	}
+	local.PrintExclaimf("Found repository [%s/%s]!", repo.Owner(), repo.Name())
+
+	// Style
+	var s Style
+	if repo.Owner() == srv.OwnerName() && repo.ForkedFrom() == nil {
+		// It's ours, and we have no parent - just a normal klone
+		local.Printf("[OWNER] klone [%s/%s]", repo.Owner, repo.Name())
+		s = StyleOwner
+	} else if repo.Owner() == srv.OwnerName() && repo.ForkedFrom() != nil {
+		// It's ours, and we have a parent - so we are kloning a fork
+		local.Printf("[ALREADY-FORKED] klone [%s/%s] forked from [%s/%s]", repo.Owner(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
+		s = StyleAlreadyForked
+	} else if repo.Owner() != srv.OwnerName() && repo.ForkedFrom() == nil {
+		// It's not ours, and we have no parent. We are totally going to fork this repo.
+		local.Printf("[NEEDS-FORK] klone [%s/%s] forked from [%s/%s]", srv.OwnerName(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
+		s = StyleNeedsFork
+	} else if repo.Owner() != srv.OwnerName() && repo.ForkedFrom() != nil {
+		// It's not ours (but maybe we have access) and we have a parent
+		local.Printf("[TRYING-FORK] klone [%s/%s] forked from [%s/%s]", srv.OwnerName(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
+		s = StyleTryingFork
+	} else {
+		// We should never get here.. but still erroring just in case
+		local.PrintFatal("Unable to parse kloning style! Major error!")
+	}
+
+	if err := kloneRepo(repo, cfg, s); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -96,7 +114,8 @@ func Klone(name string) error {
 // 1. Find our Kloner
 // 2. Add our Context
 // 3. Klone :)
-func kloneRepo(repo kloneprovider.Repo, cfg kloneprovider.GitConfig) error {
+func kloneRepo(repo kloneprovider.Repo, cfg kloneprovider.GitConfig, style Style) error {
+
 	kloner, err := getKloner(repo)
 	if err != nil {
 		return err
@@ -119,21 +138,20 @@ func kloneRepo(repo kloneprovider.Repo, cfg kloneprovider.GitConfig) error {
 // Todo (@kris-nova) Do we want to flip this logic? Hrmm..
 func getKloner(repo kloneprovider.Repo) (kloners.Kloner, error) {
 	var kloner kloners.Kloner
-	klonefile, err := repo.GetKlonefile()
-	if err != nil {
-		return nil, err
-	}
+	klonefile := repo.GetKlonefile()
 	if len(klonefile) > 1 {
 		// Somebody is using a .Klonefile
-		kloner, err = getKlonerFromKlonefile(klonefile)
+		k, err := getKlonerFromKlonefile(klonefile)
 		if err != nil {
 			return nil, err
 		}
+		kloner = k
 	} else {
-		kloner, err = getKlonerFromRepo(repo)
+		k, err := getKlonerFromRepo(repo)
 		if err != nil {
 			return nil, err
 		}
+		kloner = k
 	}
 	return kloner, nil
 }
