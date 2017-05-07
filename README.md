@@ -8,13 +8,13 @@
 
 With a few simple commands, you can have `klone` do exactly what you want, and you can always turn it off.
 
-## You can do this:
+# You can (literally) do this:
 
 ```
 klone kubernetes/kubernetes
 ```
 
-##  Here is what it does:
+#  Here is what it does:
 
  - Authenticates you with your GitHub account
    - Sure, you can set `$VARIABLES` here, but just run the command and `klone` will prompt you and cache in `~/.klone/auth`
@@ -37,7 +37,7 @@ klone kubernetes/kubernetes
 
 > GitHub is happy. You are happy. No conflicts. Just good clean contribution, the way you want it.
 
-## Desired State
+# Desired State
 
 After a `klone` you should have the following `git remote -v` configuration
 
@@ -58,7 +58,7 @@ without much trouble.
 
 
 
-## GitHub Credentials
+# GitHub Credentials
 
 `klone` will access the GitHub API either by your username and password, or via an access token.
 
