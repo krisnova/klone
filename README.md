@@ -60,6 +60,8 @@ without much trouble.
 
 `klone` is designed to offer opinionated `kloners` for many programming languages.
 
+ - [Go](https://github.com/kris-nova/klone#go)
+
 ## Go
 
  - `klone` **will** respect your `$GOPATH`'s (Yes, more than one)
