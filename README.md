@@ -11,6 +11,7 @@ With a few simple commands, you can have `klone` do exactly what you want, and y
 # You can (literally) do this:
 
 ```
+$ go get github.com/kris-nova/klone
 $ klone kubernetes/kubernetes
 ```
 
