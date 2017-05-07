@@ -1,14 +1,20 @@
 # klone
 
-`klone` helps you make quick and easy work out of contributing to a GitHub repository.
+`klone` helps you make quick and easy work out of contributing to a GitHub repository by handling `git clone` for you.
 
-##### This works:
+`klone` is written in [Go](https://golang.org/) but is designed to work with any programming language.
+
+`klone` looks to see what **programming language** you are trying to `git clone` and puts it in a smart place accordingly.
+
+With a few simple commands, you can have `klone` do exactly what you want, and you can always turn it off.
+
+## You can do this:
 
 ```
 klone kubernetes/kubernetes
 ```
 
-##### And here is what it does:
+##  Here is what it does:
 
  - Authenticates you with your GitHub account
    - Sure, you can set `$VARIABLES` here, but just run the command and `klone` will prompt you and cache in `~/.klone/auth`
@@ -16,22 +22,22 @@ klone kubernetes/kubernetes
    - Then, discovers it's a GitHub repository
  - Checks your account to see if you have already forked it
    - Don't worry if you haven't we will take care of that
- - Reasons about what needs to be done to get things to a desired state
+ - Reasons about what needs to be done to get things to a [desired state](https://github.com/kris-nova/klone#desired-state)
  - Looks up a `kloner` based on things like :
    - What **Programming Language** the repository is written in?
    - Does the repository explicitly call out a `.Klonefile`?
    - Don't worry - we have a simple `kloner` we always default to..
  - Checks your `git` configuration (yes we use the C library, so it's a real check)
- - Satisfies all concerns with your unique `git` configuration, and our desired state
- - Makes the desired state so (we actually `git clone` a repo, and `git checkout` out for you)
+ - Satisfies all concerns with your unique `git` configuration, and our [desired state](https://github.com/kris-nova/klone#desired-state)
+ - Makes the [desired state](https://github.com/kris-nova/klone#desired-state) so (we actually `git clone` a repo, and `git checkout` out for you)
  - Drop you off (`cd`) in your new local workspace
  - You can now `git push origin master` to push to your fork
  - You can also `git rebase upstream/master` to rebase your fork
 
 
-GitHub is happy. You are happy. No conflicts. Just good clean contribution, the way you want it.
+> GitHub is happy. You are happy. No conflicts. Just good clean contribution, the way you want it.
 
-### Desired State
+## Desired State
 
 After a `klone` you should have the following `git remote -v` configuration
 
@@ -52,7 +58,7 @@ without much trouble.
 
 
 
-### GitHub Credentials
+## GitHub Credentials
 
 `klone` will access the GitHub API either by your username and password, or via an access token.
 
@@ -69,12 +75,10 @@ If you want it back, just run `klone` again.
 We **will however** cache your auth token to disk in `~/.klone/auth`
 Go ahead and delete it whenever you like, we will delete/create tokens as necessary and never leave a mess.
 
-Also there are some friendly Environmental Variables you can use here
-
-##### Set Access Token
+Also there are some friendly Environmental Variables you can use here:
 
 ```bash
-export KLONE_GITHUBTOKEN="@kris-nova"
+export KLONE_GITHUBTOKEN="..abc123.."
 ```
 
 
