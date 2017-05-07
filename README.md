@@ -61,9 +61,9 @@ without much trouble.
 
 `klone` is designed to offer opinionated `kloners` for many programming languages.
 
+ - [C Kernel Modules](https://github.com/kris-nova/klone#c-kernel-module)
  - [Go](https://github.com/kris-nova/klone#go)
- - [Go](https://github.com/kris-nova/klone#simple)
- - [Go](https://github.com/kris-nova/klone#c-kernel-module)
+ - [Simple](https://github.com/kris-nova/klone#simple)
 
 ## C Kernel Module
 
