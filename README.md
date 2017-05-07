@@ -56,6 +56,33 @@ The goal here is also make it so your GitHub account is happy with this new conf
 
 without much trouble.
 
+# Kloners
+
+`klone` is designed to offer opinionated `kloners` for many programming languages.
+
+### Go
+
+`klone` **will** respect your `$GOPATH`'s (Yes, more than one)
+`klone` **will** check out the **parent** repository into your gopath (so it compiles), but you will **always be** ``origin``!
+
+Ex:
+
+```
+klone golang/dep
+```
+
+ - Will ensure you have a working fork of `golang/dep` at `$owner/dep` in GitHub
+ - Will checkout `$owner/dep` to `golang/dep`
+
+ (Hint: `$owner` is your GitHub login)
+
+ | Local Path                               | Remote     | URL                          |
+ | ---------------------------------------- | ---------- | ---------------------------- |
+ | `$GOPATH`/src/github.com/$parent/$repo   | origin     | git@github.com:$owner/$repo  |
+ | `$GOPATH`/src/github.com/$parent/$repo   | upstream   | git@github.com:$parent/$repo |
+
+
+Also with custom language `kloner`'s and `.Klonefile`'s you could even have `klone` run custom logic **after** cloning (like checkout out dependencies!)
 
 
 # GitHub Credentials
