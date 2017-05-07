@@ -1,3 +1,5 @@
+# This work is UNFINISHED do not use this yet
+
 # klone
 
 `klone` helps you make quick and easy work out of contributing to a GitHub repository by handling `git clone` for you.
