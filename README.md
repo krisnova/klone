@@ -60,10 +60,10 @@ without much trouble.
 
 `klone` is designed to offer opinionated `kloners` for many programming languages.
 
-### Go
+## Go
 
-`klone` **will** respect your `$GOPATH`'s (Yes, more than one)
-`klone` **will** check out the **parent** repository into your gopath (so it compiles), but you will **always be** ``origin``!
+ - `klone` **will** respect your `$GOPATH`'s (Yes, more than one)
+ - `klone` **will** check out the **parent** repository into your gopath (so it compiles), but you will **always be** ``origin``!
 
 Ex:
 
