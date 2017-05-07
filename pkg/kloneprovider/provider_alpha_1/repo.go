@@ -22,18 +22,18 @@
 
 package provider_alpha_1
 
-import "github.com/kris-nova/klone/pkg/kloneprovider"
-
-type RepoCursor struct {
-	//
-}
-
-func (cur *RepoCursor) Next() kloneprovider.Repo {
-	return &Repo{}
-}
+import (
+	"github.com/kris-nova/klone/pkg/kloneprovider"
+	"github.com/google/go-github/github"
+)
 
 type Repo struct {
-	//
+	impl *github.Repository
+}
+
+func (r *Repo) SetImplementation(impl interface{}) {
+	gh := impl.(*github.Repository)
+	r.impl = gh
 }
 
 func (r *Repo) GitCloneUrl() (string, error) {
@@ -49,7 +49,7 @@ func (r *Repo) Owner() (string, error) {
 	return "", nil
 }
 func (r *Repo) Name() (string, error) {
-	return "", nil
+	return *r.impl.Name, nil
 }
 func (r *Repo) Description() (string, error) {
 	return "", nil

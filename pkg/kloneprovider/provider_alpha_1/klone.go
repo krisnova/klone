@@ -31,7 +31,8 @@ func (k *KloneProvider) GetGitConfig() (kloneprovider.GitConfig, error) {
 	return &GitConfig{}, nil
 }
 func (k *KloneProvider) GetGitServer() (kloneprovider.GitServer, error) {
-	return &GitServer{}, nil
+	srv := &GitServer{}
+	return srv, nil
 }
 func NewKloner() (kloneprovider.KloneProvider, error) {
 	return &KloneProvider{}, nil

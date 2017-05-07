@@ -1,6 +1,22 @@
 # klone
 
-Checkout repositories like a pro
+### GitHub Credentials
+
+`klone` will access the GitHub API either by your username and password, or via an access token.
+
+##### Set Access Token
+
+```bash
+export KLONE_GITHUBTOKEN="@kris-nova"
+```
+
+
+```bash
+export KLONE_GITHUBUSER="@kris-nova"
+#export KLONE_GITHUBUSER="kris@nivenly.com"
+export KLONE_GITHUBPASS="password"
+```
+
 
 ### Klone a project
 

@@ -70,11 +70,7 @@ type Repo interface {
 	ForkedFrom() (Repo, error)
 	GetRepoController() (RepoController, error)
 	GetKlonefile() ([]byte, error)
-}
-
-// RepoCursor represents repositories as a link list that populates on access
-type RepoCursor interface {
-	Next() (Repo)
+	SetImplementation(interface{})
 }
 
 // RepoController is how we controll a Git repository on our local filesystem
@@ -90,10 +86,9 @@ type RepoController interface {
 
 // GitServer represents a git server (like github.com)
 type GitServer interface {
-	Authenticate(GitServerCredentials)
-	GetUser() (string, error)
+	Authenticate(GitServerCredentials) (error)
+	GetCredentials() (GitServerCredentials, error)
 	GetRepos() ([]Repo, error)
-	GetRepoCursor() (RepoCursor, error)
 }
 
 // GitServerCredentials represents necessary information to auth with a GitServer

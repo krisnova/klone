@@ -30,6 +30,20 @@ import (
 
 const Version = "1.0.0"
 
+func PrintPrompt(msg string) {
+	color.Blue(msg)
+}
+
+func RecoverableErrorf(msg string, a ...interface{}) {
+	b := fmt.Sprintf("[klone]: [Recoverable Error]:  %s", msg)
+	color.Cyan(b, a)
+}
+
+func RecoverableError(msg string) {
+	b := fmt.Sprintf("[klone]: [Recoverable Error]:  %s", msg)
+	color.Cyan(b)
+}
+
 func PrintStartBanner() {
 	color.Magenta(banner, Version)
 }
@@ -66,4 +80,3 @@ const banner = `  _  ___
  |_|\_\_|\___/|_| |_|\___|   kris@nivenly.com
  --------------------------------------------
 `
-

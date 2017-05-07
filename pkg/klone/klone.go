@@ -47,34 +47,43 @@ func Klone(name string) error {
 	if err != nil {
 		return err
 	}
-	srv, err := provider.GetGitServer()
-	if err != nil {
-		return err
-	}
+
 	cfg, err := provider.GetGitConfig()
 	if err != nil {
 		return err
 	}
-	crs, err := srv.GetRepoCursor()
+
+	// Server connection
+	srv, err := provider.GetGitServer()
+	if err != nil {
+		return err
+	}
+	crds, err := srv.GetCredentials()
+	if err != nil {
+		return err
+	}
+	err = srv.Authenticate(crds)
 	if err != nil {
 		return err
 	}
 
-	// Todo (@kris-nova) albeit this being a fabulous linked list,
-	// we can speed this up with some clever concurrency. We should
-	// do that.
-	// Todo (@kris-nova) albeit speeding this up with concurrency being
-	// a wonderful idea. We can have a goroutine build a fabulous hash map
+	repos, err := srv.GetRepos()
+	if err != nil {
+		return err
+	}
+
+	// Todo (@kris-nova) We can have a goroutine build a fabulous hash map
 	// on repo name and pointer to repo at runtime. We can then use the hash
 	// map to find our repo in O(n*log(n)).
-	for repo := crs.Next(); repo != nil; repo = crs.Next() {
+	for _, repo := range repos {
 		name, err := repo.Name()
+		local.Printf("Checking repo: %s", name)
 		if err != nil {
 			return err
 		}
 		rlowername := strings.ToLower(name)
 		if namelower == rlowername {
-			if err := kloneRepo(repo, cfg); err != nil {
+			if err = kloneRepo(repo, cfg); err != nil {
 				return err
 			}
 

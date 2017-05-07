@@ -1,10 +1,28 @@
-memo = "1ab09c2f44600f36cc779b3da2fdc6ab11eb0c3276e3082cc0d995c3edadb045"
+memo = "f5caee3686b5568b76ac3e600c195100645feab4252b7b32af2a0ef68f308259"
 
 [[projects]]
   branch = "master"
   name = "github.com/fatih/color"
   packages = ["."]
   revision = "9131ab34cf20d2f6d83fdc67168a5430d1c7dc23"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/golang/protobuf"
+  packages = ["proto"]
+  revision = "18c9bb3261723cd5401db4d0c9fbc5c3b6c70fe8"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/google/go-github"
+  packages = ["github"]
+  revision = "0e391815d4f8d0bf6912fa737e23827770dce376"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/google/go-querystring"
+  packages = ["query"]
+  revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 
 [[projects]]
   branch = "master"
@@ -38,6 +56,24 @@ memo = "1ab09c2f44600f36cc779b3da2fdc6ab11eb0c3276e3082cc0d995c3edadb045"
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  revision = "feeb485667d1fdabe727840fe00adc22431bc86e"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/oauth2"
+  packages = [".","internal"]
+  revision = "a6bd8cefa1811bd24b86f8902872e4e8225f74c4"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
   revision = "9ccfe848b9db8435a24c424abbc07a921adf1df5"
+
+[[projects]]
+  name = "google.golang.org/appengine"
+  packages = [".","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/urlfetch","urlfetch"]
+  revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
+  version = "v1.0.0"
