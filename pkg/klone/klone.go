@@ -26,8 +26,6 @@ package klone
 
 import (
 	"github.com/kris-nova/klone/pkg/kloneprovider"
-	"github.com/kris-nova/klone/pkg/klone/kloners/simple"
-	"github.com/kris-nova/klone/pkg/klone/kloners"
 	"github.com/kris-nova/klone/pkg/local"
 	"fmt"
 	"strings"
@@ -91,7 +89,7 @@ func Klone(name string) error {
 		local.Printf("Unable to lookup repo: %s", name)
 		return fmt.Errorf("Invalid repository name: %s", name)
 	}
-	local.PrintExclaimf("Found repository [%s/%s]!", repo.Owner(), repo.Name())
+	local.Printf("Found repository [%s/%s]", repo.Owner(), repo.Name())
 
 	kloneable := &Kloneable{
 		server: srv,
@@ -141,6 +139,6 @@ func Klone(name string) error {
 		local.Printf("Unable to complete klone. Klone does not clean up after itself, there might be incomplete work!")
 		return err
 	}
-
+	local.PrintExclaimf("Klone completed")
 	return nil
 }

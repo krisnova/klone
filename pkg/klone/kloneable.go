@@ -40,7 +40,7 @@ const (
 
 // LanguageToKloner maps languages to kloners
 // All language keys should be lower case, and they are cast as such before assertion
-var LanguageToKloner := map[string]kloners.Kloner{
+var LanguageToKloner = map[string]kloners.Kloner{
 	"":   simple.NewKloner(), // Empty lang can use a simple kloner
 	"go": golang.NewKloner(), // Go gets a special kloner
 }
@@ -75,9 +75,10 @@ func (k *Kloneable) Klone() error {
 func (k *Kloneable) findKloner() error {
 	lowerlang := strings.ToLower(k.repo.Language())
 	if kloner, ok := LanguageToKloner[lowerlang]; ok {
+		local.Printf("Found Kloner [%s]", k.repo.Language())
 		k.kloner = kloner
 	} else {
-		local.Printf("Unsupported language [%s], using [simple]")
+		local.Printf("Unsupported language [%s], using Kloner [simple]")
 		k.kloner = simple.NewKloner()
 	}
 	return nil
@@ -85,20 +86,65 @@ func (k *Kloneable) findKloner() error {
 
 // The user is the owner, and the repository is not a fork
 func (k *Kloneable) kloneOwner() error {
+	local.Printf("Attempting git clone")
+	localPath, err := k.kloner.Clone(k.repo)
+	if err != nil {
+		return err
+	}
+	local.Printf("Init new local repository [%s]", localPath)
+	err = k.kloner.Init()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // The user is the owner, and the repository was forked from somewhere
 func (k *Kloneable) kloneAlreadyForked() error {
+	local.Printf("Register remote [upstream]")
+	err := k.kloner.AddRemote("upstream", k.repo.ForkedFrom())
+	if err != nil {
+		return err
+	}
+	local.Printf("Attempting git clone")
+	localPath, err := k.kloner.Clone(k.repo)
+	if err != nil {
+		return err
+	}
+	local.Printf("Init new local repository [%s]", localPath)
+	err = k.kloner.Init()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // The user is NOT the owner, and the user does NOT have a fork already
 func (k *Kloneable) kloneNeedsFork() error {
+	local.Printf("Forking [%s/%s] to [%s/%s]", k.repo.Owner(), k.repo.Name(), k.server.OwnerName(), k.repo.Name())
+	err := k.kloner.Fork(k.repo)
+	if err != nil {
+		return err
+	}
+	local.Printf("Register remote [upstream]")
+	err = k.kloner.AddRemote("upstream", k.repo.ForkedFrom())
+	if err != nil {
+		return err
+	}
+	local.Printf("Attempting git clone")
+	localPath, err := k.kloner.Clone(k.repo)
+	if err != nil {
+		return err
+	}
+	local.Printf("Init new local repository [%s]", localPath)
+	err = k.kloner.Init()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // The user is NOT the owner, and the repository is already forked
 func (k *Kloneable) kloneTryingFork() error {
-	return nil
+	return k.kloneNeedsFork()
 }

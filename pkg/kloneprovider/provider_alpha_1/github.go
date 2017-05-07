@@ -108,7 +108,7 @@ func (s *GitServer) Authenticate(credentials kloneprovider.GitServerCredentials)
 	}
 	name := *s.usr.Login
 	s.username = name
-	local.PrintExclaimf("Successfully authenticated [%s]!", name)
+	local.Printf("Successfully authenticated [%s]", name)
 	s.ensureLocalAuthToken(token)
 	return nil
 }

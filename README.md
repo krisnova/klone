@@ -11,7 +11,7 @@ With a few simple commands, you can have `klone` do exactly what you want, and y
 # You can (literally) do this:
 
 ```
-klone kubernetes/kubernetes
+$ klone kubernetes/kubernetes
 ```
 
 #  Here is what it does:
