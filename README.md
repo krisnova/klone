@@ -69,10 +69,10 @@ without much trouble.
 
  **Will** attempt to reason about your architecture and check out source accordingly.
 
-    | Architecture  | Path                                        |
-    | ------------- | ------------------------------------------- |
-    | Linux         | /usr/local/src                              |
-    | FreeBSD       | /usr/src                                    |
+| Architecture  | Path                                        |
+| ------------- | ------------------------------------------- |
+| Linux         | /usr/local/src                              |
+| FreeBSD       | /usr/src                                    |
 
 **Will** still create `origin` and `upstream` (even if you are the only owner!)
 
