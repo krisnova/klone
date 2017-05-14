@@ -95,7 +95,7 @@ func Klone(name string) error {
 	// Reason about our repository
 	if (repo.Owner() == gitServer.OwnerName()) && (repo.ForkedFrom() == nil) {
 		// It's ours, and we have no parent - just a normal klone
-		local.Printf("[OWNER] klone found [%s/%s]", repo.Owner, repo.Name())
+		local.Printf("[OWNER] klone found [%s/%s]", repo.Owner(), repo.Name())
 		kloneable.style = StyleOwner
 		kloneable.repo = repo
 	} else if (repo.Owner() == gitServer.OwnerName()) && (repo.ForkedFrom() != nil) {
