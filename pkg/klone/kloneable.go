@@ -79,7 +79,21 @@ func (k *Kloneable) findKloner() error {
 	if k.gitServer == nil {
 		return errors.New("nil getServer")
 	}
-	lowerlang := strings.ToLower(k.repo.Language())
+	var lang string
+	if k.repo.Language() == "" {
+		// Then check for a parent
+		if k.repo.ForkedFrom() != nil && k.repo.ForkedFrom().Language() != "" {
+			lang = k.repo.ForkedFrom().Language()
+			local.Printf("Found language from parent repository [%s/%s] [%s]", k.repo.ForkedFrom().Owner(), k.repo.ForkedFrom().Name(), k.repo.ForkedFrom().Language())
+		} else {
+			local.Printf("Unable to detect language [%s], using Kloner [simple]")
+			k.kloner = simple.NewKloner(k.gitServer)
+			return nil
+		}
+	} else {
+		lang = k.repo.Language()
+	}
+	lowerlang := strings.ToLower(lang)
 	if newKlonerFunc, ok := LanguageToKloner[lowerlang]; ok {
 		kloner := newKlonerFunc(k.gitServer)
 		local.Printf("Found Kloner [%s]", k.repo.Language())

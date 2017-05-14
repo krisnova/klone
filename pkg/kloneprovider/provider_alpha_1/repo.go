@@ -46,6 +46,9 @@ func (r *Repo) HttpsCloneUrl() (string) {
 	return *r.impl.CloneURL
 }
 func (r *Repo) Language() (string) {
+	if r.impl.Source == nil {
+		return ""
+	}
 	return *r.impl.Source.Language
 }
 func (r *Repo) Owner() (string) {

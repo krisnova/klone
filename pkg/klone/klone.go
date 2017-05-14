@@ -48,6 +48,7 @@ func Klone(name string) error {
 	if err != nil {
 		return err
 	}
+	local.Printf("Found server [%s]", gitServer.GetServerString())
 	local.Printf("Parsing credentials")
 	crds, err := gitServer.GetCredentials()
 	if err != nil {
@@ -61,7 +62,8 @@ func Klone(name string) error {
 	local.Printf("Reticulating splines")
 
 	var repo kloneprovider.Repo
-	// Logic for "kops" and "kris-nova/kops" queries
+
+	// Logic for splitting out queries
 	if strings.Contains(name, "/") {
 		spl := strings.Split(name, "/")
 		if len(spl) != 2 {
@@ -93,32 +95,29 @@ func Klone(name string) error {
 	// Reason about our repository
 	if (repo.Owner() == gitServer.OwnerName()) && (repo.ForkedFrom() == nil) {
 		// It's ours, and we have no parent - just a normal klone
-		local.Printf("[OWNER] klone [%s/%s]", repo.Owner, repo.Name())
+		local.Printf("[OWNER] klone found [%s/%s]", repo.Owner, repo.Name())
 		kloneable.style = StyleOwner
 		kloneable.repo = repo
 	} else if (repo.Owner() == gitServer.OwnerName()) && (repo.ForkedFrom() != nil) {
 		// It's ours, and we have a parent - so we are kloning a fork
-		local.Printf("[ALREADY-FORKED] klone [%s/%s] forked from [%s/%s]", repo.Owner(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
+		local.Printf("[ALREADY-FORKED] klone found [%s/%s] forked from [%s/%s]", repo.Owner(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
 		kloneable.style = StyleAlreadyForked
 		kloneable.repo = repo
 	} else if (repo.Owner() != gitServer.OwnerName()) && (repo.ForkedFrom() == nil) {
 		// It's not ours, and we have no parent. We are totally going to fork this repo (as long as we haven't already)
 		possible, err := gitServer.GetRepoByOwner(gitServer.OwnerName(), repo.Name())
 		if err != nil {
-			local.RecoverableErrorf("Unable to find [%s/%s]: %v", gitServer.OwnerName(), repo.Name(), err)
-		}
-		if possible == nil {
-			local.Printf("[NEEDS-FORK] klone [%s/%s] forked from [%s/%s]", gitServer.OwnerName(), repo.Name(), repo.Owner(), repo.Name())
+			local.Printf("[NEEDS-FORK] klone will create [%s/%s] forked from [%s/%s]", gitServer.OwnerName(), repo.Name(), repo.Owner(), repo.Name())
 			kloneable.style = StyleNeedsFork
 			kloneable.repo = repo
 		} else {
-			local.Printf("[ALREADY-FORKED] klone [%s/%s] forked from [%s/%s]", possible.Owner(), possible.Name(), possible.ForkedFrom().Owner(), possible.ForkedFrom().Name())
+			local.Printf("[ALREADY-FORKED] klone found [%s/%s] forked from [%s/%s]", possible.Owner(), possible.Name(), possible.ForkedFrom().Owner(), possible.ForkedFrom().Name())
 			kloneable.style = StyleAlreadyForked
 			kloneable.repo = possible
 		}
 	} else if (repo.Owner() != gitServer.OwnerName()) && (repo.ForkedFrom() != nil) {
 		// It's not ours (but maybe we have access) and we have a parent
-		local.Printf("[TRYING-FORK] klone [%s/%s] forked from [%s/%s]", gitServer.OwnerName(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
+		local.Printf("[TRYING-FORK] klone will try to create [%s/%s] forked from [%s/%s]", gitServer.OwnerName(), repo.Name(), repo.ForkedFrom().Owner(), repo.ForkedFrom().Name())
 		kloneable.style = StyleTryingFork
 		kloneable.repo = repo
 	} else {
