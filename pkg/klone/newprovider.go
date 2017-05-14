@@ -21,15 +21,14 @@
 // newprovider.go is how we New() different kloneprovider implementations
 // Lives here to keep logic separated and prevent import cycles
 
-
 package klone
 
 import (
+	"github.com/kris-nova/klone/pkg/kloneprovider/github"
 	"github.com/kris-nova/klone/pkg/kloneprovider"
-	"github.com/kris-nova/klone/pkg/kloneprovider/provider_alpha_1"
 )
 
 func NewProviderAlpha1() (kloneprovider.KloneProvider, error) {
-	var kloner *provider_alpha_1.KloneProvider
+	var kloner *github.KloneProvider
 	return kloner, nil
 }
