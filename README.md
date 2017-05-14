@@ -8,6 +8,9 @@
 
 ```bash
 $ go get github.com/kris-nova/klone
+$ cd $GOPATH/src/github.com/kris-nova/klone
+$ dep ensure
+$ make
 $ klone kubernetes/kubernetes
 ```
 

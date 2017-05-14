@@ -109,10 +109,12 @@ func (k *Kloner) repoToCloneDirectory(repo kloneprovider.Repo) string {
 	path = fmt.Sprintf("%s/src/%s/%s/%s", gopath(), k.gitServer.GetServerString(), repo.Owner(), repo.Name())
 
 	// Check for custom path overrides
-	for forkedFromOwner, customFunc := range forkedFromCustomPath {
-		if repo.ForkedFrom().Owner() == forkedFromOwner {
-			path = customFunc(repo)
-			break
+	if repo.ForkedFrom() != nil {
+		for forkedFromOwner, customFunc := range forkedFromCustomPath {
+			if repo.ForkedFrom().Owner() == forkedFromOwner {
+				path = customFunc(repo)
+				break
+			}
 		}
 	}
 	return path
