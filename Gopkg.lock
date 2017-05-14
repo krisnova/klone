@@ -1,4 +1,4 @@
-memo = "853c57b5b4e5330dfb41c8b6b47c5b26da8b8be176d7acad46ac88f09f68d738"
+memo = "76e3d4229215c4f2511251fa181e7ca95eb1c3e95f787df30d351c790db348bb"
 
 [[projects]]
   branch = "master"
@@ -10,7 +10,7 @@ memo = "853c57b5b4e5330dfb41c8b6b47c5b26da8b8be176d7acad46ac88f09f68d738"
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "18c9bb3261723cd5401db4d0c9fbc5c3b6c70fe8"
+  revision = "fec3b39b059c0f88fa6b20f5ed012b1aa203a8b4"
 
 [[projects]]
   branch = "master"
@@ -61,10 +61,10 @@ memo = "853c57b5b4e5330dfb41c8b6b47c5b26da8b8be176d7acad46ac88f09f68d738"
   revision = "9ff6c6923cfffbcd502984b8e0c80539a94968b7"
 
 [[projects]]
+  branch = "v1"
   name = "github.com/src-d/gcfg"
   packages = [".","scanner","token","types"]
   revision = "f187355171c936ac84a82793659ebb4936bc1c23"
-  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -76,7 +76,7 @@ memo = "853c57b5b4e5330dfb41c8b6b47c5b26da8b8be176d7acad46ac88f09f68d738"
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
-  revision = "feeb485667d1fdabe727840fe00adc22431bc86e"
+  revision = "236b8f043b920452504e263bc21d354427127473"
 
 [[projects]]
   branch = "master"
@@ -88,7 +88,7 @@ memo = "853c57b5b4e5330dfb41c8b6b47c5b26da8b8be176d7acad46ac88f09f68d738"
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "9ccfe848b9db8435a24c424abbc07a921adf1df5"
+  revision = "f3918c30c5c2cb527c0b071a27c35120a6c0719a"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -97,10 +97,10 @@ memo = "853c57b5b4e5330dfb41c8b6b47c5b26da8b8be176d7acad46ac88f09f68d738"
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
   name = "gopkg.in/src-d/go-billy.v2"
   packages = [".","osfs"]
   revision = "99d839800b93542496ec19319f37abacf17f589f"
-  version = "v2.0.4"
 
 [[projects]]
   branch = "v4"
@@ -109,7 +109,7 @@ memo = "853c57b5b4e5330dfb41c8b6b47c5b26da8b8be176d7acad46ac88f09f68d738"
   revision = "36c78b9d1b1eea682703fb1cbb0f4f3144354389"
 
 [[projects]]
+  branch = "master"
   name = "gopkg.in/warnings.v0"
   packages = ["."]
   revision = "8a331561fe74dadba6edfc59f3be66c22c3b065d"
-  version = "v0.1.1"
