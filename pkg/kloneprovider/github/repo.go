@@ -20,7 +20,7 @@
 //
 // repo.go is an implementation of a git repository according to klone
 
-package provider_alpha_1
+package github
 
 import (
 	"github.com/kris-nova/klone/pkg/kloneprovider"

@@ -20,7 +20,7 @@
 //
 // server.go is a representation of GitHub.com as a git server
 
-package provider_alpha_1
+package github
 
 import (
 	"github.com/kris-nova/klone/pkg/kloneprovider"

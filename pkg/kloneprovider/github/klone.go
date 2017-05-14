@@ -20,7 +20,7 @@
 //
 // klone.go is top of the provider. This is the primary data structure.
 
-package provider_alpha_1
+package github
 
 import "github.com/kris-nova/klone/pkg/kloneprovider"
 

@@ -1,4 +1,4 @@
-package provider_alpha_1
+package github
 
 import (
 	"testing"
