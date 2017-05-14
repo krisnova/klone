@@ -30,7 +30,7 @@ $ klone kubernetes/kubernetes
    - What **Programming Language** the repository is written in?
    - Does the repository explicitly call out a `.Klonefile`?
    - Don't worry - we have a simple `kloner` we always default to..
- - Checks your `git` configuration (yes we use the C library, so it's a real check)
+ - Checks your `git` configuration
  - Satisfies all concerns with your unique `git` configuration, and our [desired state](https://github.com/kris-nova/klone#desired-state)
  - Makes the [desired state](https://github.com/kris-nova/klone#desired-state) so (we actually `git clone` a repo, and `git checkout` out for you)
  - Drop you off (`cd`) in your new local workspace

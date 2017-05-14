@@ -54,6 +54,25 @@ type GitServer struct {
 	usr      *github.User
 }
 
+func (s *GitServer) Fork(parent kloneprovider.Repo, newOwner string) (kloneprovider.Repo, error) {
+	c := &github.RepositoryCreateForkOptions{}
+	// Override c.Orginzation here if we ever need one!
+	repo, _, err := s.client.Repositories.CreateFork(s.ctx, parent.Owner(), parent.Name(), c)
+	if err != nil {
+		return nil, fmt.Errorf("unable to fork repository [%s]: %v", parent.Name(), err)
+	}
+	r := &Repo{
+		impl: repo,
+	}
+	return r, nil
+}
+
+// GetServerString returns a server string is the string we would want to use in things like $GOPATH
+// In this case we know we are dealing with GitHub.com so we can safely return it.
+func (s *GitServer) GetServerString() string {
+	return "github.com"
+}
+
 func (s *GitServer) OwnerName() string {
 	return *s.usr.Login
 }

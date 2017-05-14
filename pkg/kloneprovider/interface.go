@@ -25,7 +25,6 @@ package kloneprovider
 
 // KloneProvider is the core provider for using Klone
 type KloneProvider interface {
-	GetGitConfig() (GitConfig, error)
 	GetGitServer() (GitServer, error)
 }
 
@@ -37,28 +36,6 @@ type Command interface {
 	Next() (Command)
 }
 
-// GitConfig represents how we interact with git configuration
-type GitConfig interface {
-	GetConfigPath() (string, error)
-	GetConfigBytes() ([]byte, error)
-	GetConfigString() (string, error)
-	GetConfigDirective(string) (string, error)
-	SetConfigDirective(string, string) error
-}
-
-// GitOperationFunc is a special type of function that can be
-// called to perform a git operation
-type GitOperationFunc func() error
-
-// GitOperation represents an operation with the git library
-// to perform
-type GitOperation interface {
-	ExecFunc(f GitOperationFunc)
-	Perform() (error)
-	Stdout() ([]byte, error)
-	Stdin() ([]byte, error)
-}
-
 // Repo represents a git repository
 type Repo interface {
 	GitCloneUrl() (string)
@@ -68,31 +45,21 @@ type Repo interface {
 	Name() (string)
 	Description() (string)
 	ForkedFrom() (Repo)
-	GetRepoController() (RepoController)
 	GetKlonefile() ([]byte)
 	SetImplementation(interface{})
-}
-
-// RepoController is how we controll a Git repository on our local filesystem
-type RepoController interface {
-	SetRepo(Repo) (error)
-	SetRemote(string, string) (error)
-	SetInitCommand(Command)
-	Init() (error)
-	SetCloneCommand(Command)
-	Clone() (error)
-	Rsync() (error)
 }
 
 // GitServer represents a git server (like github.com)
 type GitServer interface {
 	Authenticate(GitServerCredentials) (error)
 	GetCredentials() (GitServerCredentials, error)
+	GetServerString() string
 	GetRepos() (map[string]Repo, error)
 	GetRepo(string) (Repo, error)
 	GetRepoByOwner(owner, name string) (Repo, error)
 	OwnerName() string
 	OwnerEmail() string
+	Fork(Repo, string) (Repo, error)
 }
 
 // GitServerCredentials represents necessary information to auth with a GitServer

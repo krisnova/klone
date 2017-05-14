@@ -1,4 +1,4 @@
-memo = "f5caee3686b5568b76ac3e600c195100645feab4252b7b32af2a0ef68f308259"
+memo = "853c57b5b4e5330dfb41c8b6b47c5b26da8b8be176d7acad46ac88f09f68d738"
 
 [[projects]]
   branch = "master"
@@ -44,6 +44,12 @@ memo = "f5caee3686b5568b76ac3e600c195100645feab4252b7b32af2a0ef68f308259"
 
 [[projects]]
   branch = "master"
+  name = "github.com/sergi/go-diff"
+  packages = ["diffmatchpatch"]
+  revision = "feef008d51ad2b3778f85d387ccf91735543008d"
+
+[[projects]]
+  branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
   revision = "99600f6874c95daab762dc2373dc3ee1f6a48575"
@@ -53,6 +59,18 @@ memo = "f5caee3686b5568b76ac3e600c195100645feab4252b7b32af2a0ef68f308259"
   name = "github.com/spf13/pflag"
   packages = ["."]
   revision = "9ff6c6923cfffbcd502984b8e0c80539a94968b7"
+
+[[projects]]
+  name = "github.com/src-d/gcfg"
+  packages = [".","scanner","token","types"]
+  revision = "f187355171c936ac84a82793659ebb4936bc1c23"
+  version = "v1.3.0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["curve25519","ed25519","ed25519/internal/edwards25519","ssh","ssh/agent","ssh/terminal"]
+  revision = "ab89591268e0c8b748cbe4047b00197516011af5"
 
 [[projects]]
   branch = "master"
@@ -77,3 +95,21 @@ memo = "f5caee3686b5568b76ac3e600c195100645feab4252b7b32af2a0ef68f308259"
   packages = [".","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/urlfetch","urlfetch"]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
+
+[[projects]]
+  name = "gopkg.in/src-d/go-billy.v2"
+  packages = [".","osfs"]
+  revision = "99d839800b93542496ec19319f37abacf17f589f"
+  version = "v2.0.4"
+
+[[projects]]
+  branch = "v4"
+  name = "gopkg.in/src-d/go-git.v4"
+  packages = [".","config","internal/revision","plumbing","plumbing/cache","plumbing/filemode","plumbing/format/config","plumbing/format/idxfile","plumbing/format/index","plumbing/format/objfile","plumbing/format/packfile","plumbing/format/pktline","plumbing/object","plumbing/protocol/packp","plumbing/protocol/packp/capability","plumbing/protocol/packp/sideband","plumbing/revlist","plumbing/storer","plumbing/transport","plumbing/transport/client","plumbing/transport/file","plumbing/transport/git","plumbing/transport/http","plumbing/transport/internal/common","plumbing/transport/server","plumbing/transport/ssh","storage","storage/filesystem","storage/filesystem/internal/dotgit","storage/memory","utils/binary","utils/diff","utils/ioutil","utils/merkletrie","utils/merkletrie/internal/frame","utils/merkletrie/noder"]
+  revision = "36c78b9d1b1eea682703fb1cbb0f4f3144354389"
+
+[[projects]]
+  name = "gopkg.in/warnings.v0"
+  packages = ["."]
+  revision = "8a331561fe74dadba6edfc59f3be66c22c3b065d"
+  version = "v0.1.1"

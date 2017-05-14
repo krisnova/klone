@@ -27,9 +27,6 @@ import "github.com/kris-nova/klone/pkg/kloneprovider"
 type KloneProvider struct {
 }
 
-func (k *KloneProvider) GetGitConfig() (kloneprovider.GitConfig, error) {
-	return &GitConfig{}, nil
-}
 func (k *KloneProvider) GetGitServer() (kloneprovider.GitServer, error) {
 	srv := &GitServer{}
 	return srv, nil

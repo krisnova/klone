@@ -29,6 +29,7 @@ import (
 	"github.com/kris-nova/klone/pkg/klone/kloners/golang"
 	"strings"
 	"github.com/kris-nova/klone/pkg/local"
+	"errors"
 )
 
 const (
@@ -38,20 +39,22 @@ const (
 	StyleTryingFork    Style = 4 // The user is NOT the owner, and the repository is already forked
 )
 
+// NewKlonerFunc defines the type of function we expect for new kloners
+type NewKlonerFunc func(server kloneprovider.GitServer) (kloners.Kloner)
+
 // LanguageToKloner maps languages to kloners
 // All language keys should be lower case, and they are cast as such before assertion
-var LanguageToKloner = map[string]kloners.Kloner{
-	"":   simple.NewKloner(), // Empty lang can use a simple kloner
-	"go": golang.NewKloner(), // Go gets a special kloner
+var LanguageToKloner = map[string]NewKlonerFunc{
+	"":   simple.NewKloner, // Empty lang can use a simple kloner
+	"go": golang.NewKloner, // Go gets a special kloner
 }
 
 // Kloneable is a data structure that holds all relevant data to klone a repository
 type Kloneable struct {
-	server kloneprovider.GitServer
-	repo   kloneprovider.Repo
-	config kloneprovider.GitConfig
-	style  Style
-	kloner kloners.Kloner
+	gitServer kloneprovider.GitServer
+	repo      kloneprovider.Repo
+	style     Style
+	kloner    kloners.Kloner
 }
 
 // Klone is the only exported method, and is the only way to take action on a Kloneable data structure
@@ -73,78 +76,17 @@ func (k *Kloneable) Klone() error {
 // findKloner is the logic that selects a kloner to use on a repository.
 // Todo (@kris-nova) let's support .Klonefile's!
 func (k *Kloneable) findKloner() error {
+	if k.gitServer == nil {
+		return errors.New("nil getServer")
+	}
 	lowerlang := strings.ToLower(k.repo.Language())
-	if kloner, ok := LanguageToKloner[lowerlang]; ok {
+	if newKlonerFunc, ok := LanguageToKloner[lowerlang]; ok {
+		kloner := newKlonerFunc(k.gitServer)
 		local.Printf("Found Kloner [%s]", k.repo.Language())
 		k.kloner = kloner
 	} else {
 		local.Printf("Unsupported language [%s], using Kloner [simple]")
-		k.kloner = simple.NewKloner()
+		k.kloner = simple.NewKloner(k.gitServer)
 	}
 	return nil
-}
-
-// The user is the owner, and the repository is not a fork
-func (k *Kloneable) kloneOwner() error {
-	local.Printf("Attempting git clone")
-	localPath, err := k.kloner.Clone(k.repo)
-	if err != nil {
-		return err
-	}
-	local.Printf("Init new local repository [%s]", localPath)
-	err = k.kloner.Init()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// The user is the owner, and the repository was forked from somewhere
-func (k *Kloneable) kloneAlreadyForked() error {
-	local.Printf("Register remote [upstream]")
-	err := k.kloner.AddRemote("upstream", k.repo.ForkedFrom())
-	if err != nil {
-		return err
-	}
-	local.Printf("Attempting git clone")
-	localPath, err := k.kloner.Clone(k.repo)
-	if err != nil {
-		return err
-	}
-	local.Printf("Init new local repository [%s]", localPath)
-	err = k.kloner.Init()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// The user is NOT the owner, and the user does NOT have a fork already
-func (k *Kloneable) kloneNeedsFork() error {
-	local.Printf("Forking [%s/%s] to [%s/%s]", k.repo.Owner(), k.repo.Name(), k.server.OwnerName(), k.repo.Name())
-	err := k.kloner.Fork(k.repo)
-	if err != nil {
-		return err
-	}
-	local.Printf("Register remote [upstream]")
-	err = k.kloner.AddRemote("upstream", k.repo.ForkedFrom())
-	if err != nil {
-		return err
-	}
-	local.Printf("Attempting git clone")
-	localPath, err := k.kloner.Clone(k.repo)
-	if err != nil {
-		return err
-	}
-	local.Printf("Init new local repository [%s]", localPath)
-	err = k.kloner.Init()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// The user is NOT the owner, and the repository is already forked
-func (k *Kloneable) kloneTryingFork() error {
-	return k.kloneNeedsFork()
 }

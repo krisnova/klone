@@ -6,6 +6,7 @@ import (
 )
 
 type Kloner struct {
+	gitServer kloneprovider.GitServer
 }
 
 func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
@@ -21,6 +22,8 @@ func (k *Kloner) Init() error {
 	return nil
 }
 
-func NewKloner() (kloners.Kloner) {
-	return &Kloner{}
+func NewKloner(srv kloneprovider.GitServer) (kloners.Kloner) {
+	return &Kloner{
+		gitServer: srv,
+	}
 }

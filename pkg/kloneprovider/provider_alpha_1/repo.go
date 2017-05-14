@@ -66,34 +66,6 @@ func (r *Repo) ForkedFrom() (kloneprovider.Repo) {
 	}
 	return r.forkedFrom
 }
-func (r *Repo) GetRepoController() (kloneprovider.RepoController) {
-	return &RepoController{}
-}
 func (r *Repo) GetKlonefile() ([]byte) {
 	return []byte("")
-}
-
-type RepoController struct {
-	//
-}
-
-func (ctl *RepoController) SetRepo(repo kloneprovider.Repo) (error) {
-	return nil
-}
-func (ctl *RepoController) SetRemote(string, string) (error) {
-	return nil
-}
-func (ctl *RepoController) SetInitCommand(kloneprovider.Command) {
-}
-func (ctl *RepoController) Init() (error) {
-	return nil
-}
-func (ctl *RepoController) SetCloneCommand(kloneprovider.Command) {
-
-}
-func (ctl *RepoController) Clone() (error) {
-	return nil
-}
-func (ctl *RepoController) Rsync() (error) {
-	return nil
 }
