@@ -1,16 +1,10 @@
-# This work is UNFINISHED do not use this yet
+# About
 
-# klone
+`klone` is a command line tool designed to help getting a user working in forked repository much quicker.
 
-`klone` helps you make quick and easy work out of contributing to a GitHub repository by handling `git clone` for you.
+`klone` is still a new project, so please use at your own risk. If you discover an issue please let us know!
 
-`klone` is written in [Go](https://golang.org/) but is designed to work with any programming language.
-
-`klone` looks to see what **programming language** you are trying to `git clone` and puts it in a smart place accordingly.
-
-With a few simple commands, you can have `klone` do exactly what you want, and you can always turn it off.
-
-# You can (literally) do this:
+# Using `klone`
 
 ```bash
 $ go get github.com/kris-nova/klone

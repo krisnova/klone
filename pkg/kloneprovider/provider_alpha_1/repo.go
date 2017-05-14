@@ -47,6 +47,9 @@ func (r *Repo) HttpsCloneUrl() (string) {
 }
 func (r *Repo) Language() (string) {
 	if r.impl.Source == nil {
+		if *r.impl.Language != "" {
+			return *r.impl.Language
+		}
 		return ""
 	}
 	return *r.impl.Source.Language

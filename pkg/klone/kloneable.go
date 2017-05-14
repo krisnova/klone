@@ -58,7 +58,7 @@ type Kloneable struct {
 }
 
 // Klone is the only exported method, and is the only way to take action on a Kloneable data structure
-func (k *Kloneable) Klone() error {
+func (k *Kloneable) Klone() (string, error) {
 	k.findKloner() // First things first, we will need a kloner
 	switch k.style {
 	case StyleOwner:
@@ -70,7 +70,7 @@ func (k *Kloneable) Klone() error {
 	case StyleTryingFork:
 		return k.kloneTryingFork()
 	}
-	return nil
+	return "", nil
 }
 
 // findKloner is the logic that selects a kloner to use on a repository.
@@ -86,7 +86,7 @@ func (k *Kloneable) findKloner() error {
 			lang = k.repo.ForkedFrom().Language()
 			local.Printf("Found language from parent repository [%s/%s] [%s]", k.repo.ForkedFrom().Owner(), k.repo.ForkedFrom().Name(), k.repo.ForkedFrom().Language())
 		} else {
-			local.Printf("Unable to detect language [%s], using Kloner [simple]")
+			local.Printf("Unable to detect language, using Kloner [simple]")
 			k.kloner = simple.NewKloner(k.gitServer)
 			return nil
 		}

@@ -126,12 +126,12 @@ func Klone(name string) error {
 	}
 
 	// We now have something that is Klonable, let's klone it
-	err = kloneable.Klone()
+	path, err := kloneable.Klone()
 	if err != nil {
 		// Todo (@kris-nova) Can we please make klone atomic? :)
 		local.Printf("Unable to complete klone. Klone does not clean up after itself, there might be incomplete work!")
 		return err
 	}
-	local.PrintExclaimf("Klone completed")
+	local.PrintExclaimf("Klone completed [%s]", path)
 	return nil
 }

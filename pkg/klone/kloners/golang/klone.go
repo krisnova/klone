@@ -7,7 +7,6 @@ import (
 	"os"
 	"github.com/kris-nova/klone/pkg/local"
 	"fmt"
-	"errors"
 	"gopkg.in/src-d/go-git.v4/config"
 	"strings"
 )
@@ -16,20 +15,26 @@ type Kloner struct {
 	gitServer kloneprovider.GitServer
 }
 
-var ClonedRepository *git.Repository
-
 // This is the logic that defins a Clone() for a Go repository
 // Of course we need to check out into $GOPATH
 func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 	o := &git.CloneOptions{
 		URL:               repo.GitCloneUrl(),
-		RecurseSubmodules: 1,
+		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
 	path := k.repoToCloneDirectory(repo)
 	local.Printf("Cloning into $GOPATH [%s]", path)
 	r, err := git.PlainClone(path, false, o)
 	if err != nil {
-		return "", fmt.Errorf("unable to clone repository: %v", err)
+		if strings.Contains(err.Error(), "repository already exists") {
+			local.Printf("Clone: %s", err.Error())
+			return path, nil
+		} else if strings.Contains(err.Error(), "unknown capability") {
+			// Todo (@kris-nova) handle capability errors better https://github.com/kris-nova/klone/issues/5
+			local.RecoverableErrorf("bypassing capability error: %v ", err)
+		} else {
+			return "", fmt.Errorf("unable to clone repository: %v", err)
+		}
 	}
 	local.Printf("Checking out HEAD")
 	ref, err := r.Head()
@@ -40,26 +45,32 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("unable to checkout latest commit: %v", err)
 	}
-	local.Printf("HEAD checked out at [%s]", commit)
 
-	// Cache the repository pointer
-	ClonedRepository = r
+	local.Printf("HEAD checked out HEAD at [%s]", commit.Hash)
+
 	return path, nil
 }
 
 // Add remote will add a new remote, and fetch from the remote branch
-func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo) error {
-	if ClonedRepository == nil {
-		return errors.New("Unable to add remote! Empty cloned repository pointer.")
+func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base kloneprovider.Repo) error {
+	path := k.repoToCloneDirectory(base)
+	grepo, err := git.PlainOpen(path)
+	if err != nil {
+		return fmt.Errorf("unable to open repository: %v", err)
 	}
 	c := &config.RemoteConfig{
 		Name: name,
 		URL:  remote.GitCloneUrl(),
 	}
 	local.Printf("Adding remote [%s][%s]", name, remote.GitCloneUrl())
-	r, err := ClonedRepository.CreateRemote(c)
+	r, err := grepo.CreateRemote(c)
 	if err != nil {
-		return fmt.Errorf("unable create remote: %v", err)
+		if strings.Contains(err.Error(), "remote already exists") {
+			local.Printf("Remote: %s", err.Error())
+			return nil
+		} else {
+			return fmt.Errorf("unable create remote: %v", err)
+		}
 	}
 	local.Printf("Fetching remote [%s]", remote.Name())
 	f := &git.FetchOptions{
@@ -67,6 +78,10 @@ func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo) error {
 	}
 	err = r.Fetch(f)
 	if err != nil {
+		if strings.Contains(err.Error(), "already up-to-date") {
+			local.Printf("Fetch: %s", err.Error())
+			return nil
+		}
 		return fmt.Errorf("unable to fetch remote: %v", err)
 	}
 	return nil
