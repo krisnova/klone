@@ -20,7 +20,7 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
 	// Here we assume ~/$repo
-	path := fmt.Sprintf("%s/%s", local.Home(), repo.Name())
+	path := k.GetCloneDirectory(repo)
 	local.Printf("Cloning into [%s]", path)
 	r, err := git.PlainClone(path, false, o)
 	if err != nil {
@@ -48,7 +48,7 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 }
 
 func (k *Kloner) DeleteRemote(name string, repo kloneprovider.Repo) error {
-	path := fmt.Sprintf("%s/%s", local.Home(), repo.Name())
+	path := k.GetCloneDirectory(repo)
 	grepo, err := git.PlainOpen(path)
 	if err != nil {
 		return fmt.Errorf("unable to open repository: %v", err)
@@ -61,7 +61,7 @@ func (k *Kloner) DeleteRemote(name string, repo kloneprovider.Repo) error {
 }
 
 func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base kloneprovider.Repo) error {
-	path := fmt.Sprintf("%s/%s", local.Home(), base.Name())
+	path := k.GetCloneDirectory(base)
 	grepo, err := git.PlainOpen(path)
 	if err != nil {
 		return fmt.Errorf("unable to open repository: %v", err)
@@ -94,6 +94,10 @@ func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base klonepro
 		return fmt.Errorf("unable to fetch remote: %v", err)
 	}
 	return nil
+}
+
+func (k *Kloner) GetCloneDirectory(repo kloneprovider.Repo) string {
+	return fmt.Sprintf("%s/%s", local.Home(), repo.Name())
 }
 
 func NewKloner(srv kloneprovider.GitServer) (kloners.Kloner) {

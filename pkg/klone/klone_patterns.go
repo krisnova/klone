@@ -59,13 +59,12 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 					return "", fmt.Errorf("unable to detect forked repository after waiting %d seconds", secondsToWaitForGithubClone)
 				}
 			}
-
 		} else {
 			return "", err
 		}
 	}
 	local.Printf("Attempting git clone")
-	path, err := k.kloner.Clone(k.repo)
+	path, err := k.kloner.Clone(newRepo)
 	if err != nil {
 		return "", err
 	}

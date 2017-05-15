@@ -22,7 +22,7 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 		URL:               repo.GitCloneUrl(),
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
-	path := k.repoToCloneDirectory(repo)
+	path := k.GetCloneDirectory(repo)
 	local.Printf("Cloning into $GOPATH [%s]", path)
 	r, err := git.PlainClone(path, false, o)
 	if err != nil {
@@ -50,7 +50,7 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 }
 
 func (k *Kloner) DeleteRemote(name string, repo kloneprovider.Repo) error {
-	path := k.repoToCloneDirectory(repo)
+	path := k.GetCloneDirectory(repo)
 	grepo, err := git.PlainOpen(path)
 	if err != nil {
 		return fmt.Errorf("unable to open repository: %v", err)
@@ -64,7 +64,7 @@ func (k *Kloner) DeleteRemote(name string, repo kloneprovider.Repo) error {
 
 // Add remote will add a new remote, and fetch from the remote branch
 func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base kloneprovider.Repo) error {
-	path := k.repoToCloneDirectory(base)
+	path := k.GetCloneDirectory(base)
 	grepo, err := git.PlainOpen(path)
 	if err != nil {
 		return fmt.Errorf("unable to open repository: %v", err)
@@ -114,7 +114,7 @@ var forkedFromCustomPath = map[string]customPathFunc{
 
 // repoToCloneDirectory will take a repository and reason about
 // where to check out the repository on your local filesystem
-func (k *Kloner) repoToCloneDirectory(repo kloneprovider.Repo) string {
+func (k *Kloner) GetCloneDirectory(repo kloneprovider.Repo) string {
 	var path string
 	// Default path
 	path = fmt.Sprintf("%s/src/%s/%s/%s", Gopath(), k.gitServer.GetServerString(), repo.Owner(), repo.Name())

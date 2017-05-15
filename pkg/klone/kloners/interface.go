@@ -6,4 +6,5 @@ type Kloner interface {
 	Clone(repo kloneprovider.Repo) (string, error)
 	AddRemote(name string, remote kloneprovider.Repo, base kloneprovider.Repo) error
 	DeleteRemote(name string, repo kloneprovider.Repo) error
+	GetCloneDirectory(repo kloneprovider.Repo) string
 }
