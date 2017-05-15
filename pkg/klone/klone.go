@@ -25,10 +25,8 @@
 package klone
 
 import (
-	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/local"
 	"fmt"
-	"strings"
 )
 
 type Style int
@@ -39,57 +37,15 @@ type Style int
 // and set a kloning "style" for the klone
 func Klone(name string) error {
 	local.Printf("Kloning [%s]", name)
-
-	// Github
-	provider, err := NewGithubProvider()
-	if err != nil {
-		return err
+	// ParseQuery
+	ok, queryInfo := ParseQuery(name)
+	if !ok {
+		return fmt.Errorf("Failure to parse query: %s", name)
 	}
-	local.Printf("Loading server")
-	gitServer, err := provider.NewGitServer()
-	if err != nil {
-		return err
-	}
-	local.Printf("Found server [%s]", gitServer.GetServerString())
-	local.Printf("Parsing credentials")
-	crds, err := gitServer.GetCredentials()
-	if err != nil {
-		return err
-	}
-	local.Printf("Authenticating")
-	err = gitServer.Authenticate(crds)
-	if err != nil {
-		return err
-	}
-	local.Printf("Reticulating splines")
-
-	var repo kloneprovider.Repo
-
-	// Logic for splitting out queries
-	if strings.Contains(name, "/") {
-		spl := strings.Split(name, "/")
-		if len(spl) != 2 {
-			return fmt.Errorf("Invalid repository name: %s", name)
-		}
-		owner := spl[0]
-		rname := spl[1]
-		repo, err = gitServer.GetRepoByOwner(owner, rname)
-		if err != nil {
-			return err
-		}
-	} else {
-		repo, err = gitServer.GetRepo(name)
-		if err != nil {
-			return err
-		}
-	}
-
-	if repo == nil {
-		local.Printf("Unable to lookup repo: %s", name)
-		return fmt.Errorf("Invalid repository name: %s", name)
-	}
+	gitServer := queryInfo.gitServer
+	repo := queryInfo.repo
 	local.Printf("Found repository [%s/%s]", repo.Owner(), repo.Name())
-
+	var err error
 	kloneable := &Kloneable{
 		gitServer: gitServer,
 	}

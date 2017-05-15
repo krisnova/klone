@@ -16,6 +16,15 @@ func (k *Kloneable) kloneOwner() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	local.Printf("Register remote [origin]")
+	err = k.kloner.DeleteRemote("origin", k.repo)
+	if err != nil && !strings.Contains(err.Error(), "remote not found") {
+		return path, err
+	}
+	err = k.kloner.AddRemote("origin", k.repo, k.repo)
+	if err != nil {
+		return path, err
+	}
 	return path, nil
 }
 
@@ -26,7 +35,21 @@ func (k *Kloneable) kloneAlreadyForked() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// Add Origin
+	local.Printf("Register remote [origin]")
+	err = k.kloner.DeleteRemote("origin", k.repo)
+	if err != nil && !strings.Contains(err.Error(), "remote not found") {
+		return path, err
+	}
+	err = k.kloner.AddRemote("origin", k.repo, k.repo)
+	if err != nil {
+		return path, err
+	}
 	local.Printf("Register remote [upstream]")
+	err = k.kloner.DeleteRemote("origin", k.repo)
+	if err != nil && !strings.Contains(err.Error(), "remote not found") {
+		return path, err
+	}
 	err = k.kloner.AddRemote("upstream", k.repo.ForkedFrom(), k.repo)
 	if err != nil {
 		return path, err
@@ -81,6 +104,10 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 
 	// Add Upstream
 	local.Printf("Register remote [upstream]")
+	err = k.kloner.DeleteRemote("upstream", k.repo)
+	if err != nil && !strings.Contains(err.Error(), "remote not found") {
+		return path, err
+	}
 	err = k.kloner.AddRemote("upstream", k.repo, newRepo)
 	if err != nil {
 		return path, err

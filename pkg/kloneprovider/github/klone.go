@@ -31,5 +31,13 @@ type KloneProvider struct {
 
 func (k *KloneProvider) NewGitServer() (kloneprovider.GitServer, error) {
 	srv := &GitServer{}
+	creds, err := srv.GetCredentials()
+	if err != nil {
+		return srv, err
+	}
+	err = srv.Authenticate(creds)
+	if err != nil {
+		return srv, err
+	}
 	return srv, nil
 }

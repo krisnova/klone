@@ -17,24 +17,10 @@ var GitServer kloneprovider.GitServer
 // TestMain will setup the e2e testing suite by creating a new (and concurrent) connection
 // to the Git provider
 func TestMain(m *testing.M) {
-	provider, err := klone.NewGithubProvider()
-	if err != nil {
-		fmt.Printf("Unable to get klone provider: %v\n", err)
-		os.Exit(-1)
-	}
+	provider := klone.NewGithubProvider()
 	gitServer, err := provider.NewGitServer()
 	if err != nil {
 		fmt.Printf("Unable to get GitHub server: %v\n", err)
-		os.Exit(-1)
-	}
-	crds, err := gitServer.GetCredentials()
-	if err != nil {
-		fmt.Printf("Unable to get GitHub credentials: %v\n", err)
-		os.Exit(-1)
-	}
-	err = gitServer.Authenticate(crds)
-	if err != nil {
-		fmt.Printf("Unable to get authenticate against GitHub: %v\n", err)
 		os.Exit(-1)
 	}
 	GitServer = gitServer
