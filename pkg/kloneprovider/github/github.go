@@ -152,6 +152,22 @@ func (s *GitServer) GetRepoByOwner(owner, name string) (kloneprovider.Repo, erro
 
 }
 
+func (s *GitServer) NewRepo(name, desc string) (kloneprovider.Repo, error) {
+	t := true
+	gitRepo := &github.Repository{}
+	gitRepo.Name = &name
+	gitRepo.Description = &desc
+	gitRepo.AutoInit = &t
+	repo, _, err := s.client.Repositories.Create(s.ctx, "", gitRepo)
+	if err != nil {
+		return nil, err
+	}
+	r := &Repo{}
+	r.impl = repo
+
+	return r, nil
+}
+
 func (s *GitServer) DeleteRepoByOwner(name, owner string) (bool, error) {
 	_, err := s.client.Repositories.Delete(s.ctx, owner, name)
 	if err != nil {

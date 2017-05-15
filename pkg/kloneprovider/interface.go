@@ -62,6 +62,7 @@ type GitServer interface {
 	Fork(Repo, string) (Repo, error)
 	DeleteRepo(string) (bool, error)
 	DeleteRepoByOwner(owner, name string) (bool, error)
+	NewRepo(name, desc string) (Repo, error)
 }
 
 // GitServerCredentials represents necessary information to auth with a GitServer

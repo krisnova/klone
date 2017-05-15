@@ -41,6 +41,52 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestNewRepoOwnerKlone(t *testing.T) {
+	path := fmt.Sprintf("%s/klone-e2e-empty", local.Home())
+
+	repo, err := GitServer.GetRepoByOwner(GitServer.OwnerName(), "klone-e2e-empty")
+	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
+		t.Fatalf("Unable to attempt to search for repo: %v", err)
+	}
+	if repo != nil && repo.Owner() == GitServer.OwnerName() {
+		_, err := GitServer.DeleteRepo("klone-e2e-empty")
+		if err != nil {
+			t.Fatalf("Unable to delete repo: %v", err)
+		}
+	}
+	repo, err = GitServer.NewRepo("klone-e2e-empty", "A throw-away repository created by Klone (@kris-nova)")
+	if err != nil {
+		t.Fatalf("Unable to create new repo: %v", err)
+	}
+	err = IdempotentKlone(path, "klone-e2e-empty")
+	if err != nil {
+		t.Fatalf("Error kloning: %v", err)
+	}
+	r, err := git.PlainOpen(path)
+	if err != nil {
+		t.Fatalf("Error opening path: %v", err)
+	}
+	remotes, err := r.Remotes()
+	if err != nil {
+		t.Fatalf("Error reading remotes: %v", err)
+	}
+	originOk := false
+	for _, remote := range remotes {
+		rspl := strings.Split(remote.String(), "\t")
+		if len(rspl) < 3 {
+			t.Fatalf("Invalid remote string: %s", remote.String())
+		}
+		name := rspl[0]
+		url := rspl[1]
+		if strings.Contains(name, "origin") && strings.Contains(url, fmt.Sprintf("git://github.com/%s/klone-e2e-empty.git", GitServer.OwnerName())) {
+			originOk = true
+		}
+	}
+	if originOk == false {
+		t.Fatal("Error detecting remote [origin]")
+	}
+}
+
 // TestGoLanguageNeedsFork will attempt to klone a repository that we KNOW the language for (Go)
 // The test also handles recursively removing any local files as well as ensuring a GitHub fork
 // is removed before running the test. This test (by design) will use the Golang kloner.
