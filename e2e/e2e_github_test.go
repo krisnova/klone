@@ -41,6 +41,8 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+// TestNewRepoOwnerKlone will ensure a throw away repository is created and then attempt to
+// klone the repository.. Will ensure origin is set to the new repository
 func TestNewRepoOwnerKlone(t *testing.T) {
 	path := fmt.Sprintf("%s/klone-e2e-empty", local.Home())
 
