@@ -7,6 +7,6 @@ import (
 
 // Kubernetes does not follow the traditional path logic, so we have to hard code it
 func repoToKubernetesPath(repo kloneprovider.Repo) string {
-	path := fmt.Sprintf("%s/src/%s/%s", gopath(), "k8s.io", repo.Name())
+	path := fmt.Sprintf("%s/src/%s/%s", Gopath(), "k8s.io", repo.Name())
 	return path
 }

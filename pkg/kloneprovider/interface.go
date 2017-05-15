@@ -25,7 +25,7 @@ package kloneprovider
 
 // KloneProvider is the core provider for using Klone
 type KloneProvider interface {
-	GetGitServer() (GitServer, error)
+	NewGitServer() (GitServer, error)
 }
 
 // Command represents a single task to perform in with git
@@ -60,6 +60,8 @@ type GitServer interface {
 	OwnerName() string
 	OwnerEmail() string
 	Fork(Repo, string) (Repo, error)
+	DeleteRepo(string) (bool, error)
+	DeleteRepoByOwner(owner, name string) (bool, error)
 }
 
 // GitServerCredentials represents necessary information to auth with a GitServer

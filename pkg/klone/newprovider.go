@@ -28,7 +28,7 @@ import (
 	"github.com/kris-nova/klone/pkg/kloneprovider"
 )
 
-func NewProviderAlpha1() (kloneprovider.KloneProvider, error) {
+func NewGithubProvider() (kloneprovider.KloneProvider, error) {
 	var kloner *github.KloneProvider
 	return kloner, nil
 }

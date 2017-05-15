@@ -39,12 +39,14 @@ type Style int
 // and set a kloning "style" for the klone
 func Klone(name string) error {
 	local.Printf("Kloning [%s]", name)
-	provider, err := NewProviderAlpha1()
+
+	// Github
+	provider, err := NewGithubProvider()
 	if err != nil {
 		return err
 	}
 	local.Printf("Loading server")
-	gitServer, err := provider.GetGitServer()
+	gitServer, err := provider.NewGitServer()
 	if err != nil {
 		return err
 	}
@@ -106,7 +108,7 @@ func Klone(name string) error {
 	} else if (repo.Owner() != gitServer.OwnerName()) && (repo.ForkedFrom() == nil) {
 		// It's not ours, and we have no parent. We are totally going to fork this repo (as long as we haven't already)
 		possible, err := gitServer.GetRepoByOwner(gitServer.OwnerName(), repo.Name())
-		if err != nil {
+		if err != nil || possible.ForkedFrom() == nil {
 			local.Printf("[NEEDS-FORK] klone will create [%s/%s] forked from [%s/%s]", gitServer.OwnerName(), repo.Name(), repo.Owner(), repo.Name())
 			kloneable.style = StyleNeedsFork
 			kloneable.repo = repo

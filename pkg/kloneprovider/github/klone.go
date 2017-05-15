@@ -22,15 +22,14 @@
 
 package github
 
-import "github.com/kris-nova/klone/pkg/kloneprovider"
+import (
+	"github.com/kris-nova/klone/pkg/kloneprovider"
+)
 
 type KloneProvider struct {
 }
 
-func (k *KloneProvider) GetGitServer() (kloneprovider.GitServer, error) {
+func (k *KloneProvider) NewGitServer() (kloneprovider.GitServer, error) {
 	srv := &GitServer{}
 	return srv, nil
-}
-func NewKloner() (kloneprovider.KloneProvider, error) {
-	return &KloneProvider{}, nil
 }

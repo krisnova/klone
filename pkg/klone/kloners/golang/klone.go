@@ -45,10 +45,21 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("unable to checkout latest commit: %v", err)
 	}
-
 	local.Printf("HEAD checked out HEAD at [%s]", commit.Hash)
-
 	return path, nil
+}
+
+func (k *Kloner) DeleteRemote(name string, repo kloneprovider.Repo) error {
+	path := k.repoToCloneDirectory(repo)
+	grepo, err := git.PlainOpen(path)
+	if err != nil {
+		return fmt.Errorf("unable to open repository: %v", err)
+	}
+	err = grepo.DeleteRemote(name)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Add remote will add a new remote, and fetch from the remote branch
@@ -106,7 +117,7 @@ var forkedFromCustomPath = map[string]customPathFunc{
 func (k *Kloner) repoToCloneDirectory(repo kloneprovider.Repo) string {
 	var path string
 	// Default path
-	path = fmt.Sprintf("%s/src/%s/%s/%s", gopath(), k.gitServer.GetServerString(), repo.Owner(), repo.Name())
+	path = fmt.Sprintf("%s/src/%s/%s/%s", Gopath(), k.gitServer.GetServerString(), repo.Owner(), repo.Name())
 
 	// Check for custom path overrides
 	if repo.ForkedFrom() != nil {
@@ -121,7 +132,7 @@ func (k *Kloner) repoToCloneDirectory(repo kloneprovider.Repo) string {
 }
 
 // Logic for getting $GOPATH
-func gopath() string {
+func Gopath() string {
 	epath := os.Getenv("GOPATH")
 	if epath == "" {
 		// It's now safe to assume $HOME/go

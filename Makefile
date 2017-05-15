@@ -1,5 +1,5 @@
-all:
+compile:
 	go install .
 
-deps:
+build:
 	dep ensure

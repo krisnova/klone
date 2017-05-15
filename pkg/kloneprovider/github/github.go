@@ -152,6 +152,24 @@ func (s *GitServer) GetRepoByOwner(owner, name string) (kloneprovider.Repo, erro
 
 }
 
+func (s *GitServer) DeleteRepoByOwner(name, owner string) (bool, error) {
+	_, err := s.client.Repositories.Delete(s.ctx, owner, name)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+
+}
+
+func (s *GitServer) DeleteRepo(name string) (bool, error) {
+	_, err := s.client.Repositories.Delete(s.ctx, s.username, name)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+
+}
+
 // GetRepo is the most effecient way to look up a repository exactly by it's name and assumed owner (you)
 func (s *GitServer) GetRepo(name string) (kloneprovider.Repo, error) {
 	r := &Repo{}
