@@ -8,6 +8,7 @@ import (
 	"strings"
 	"fmt"
 	"gopkg.in/src-d/go-git.v4/config"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
 )
 
 type Kloner struct {
@@ -19,7 +20,8 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 		URL:               repo.GitCloneUrl(),
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
-	// Here we assume ~/$repo
+	o.Auth = &ssh.PublicKeysCallback{}
+	
 	path := k.GetCloneDirectory(repo)
 	local.Printf("Cloning into [%s]", path)
 	r, err := git.PlainClone(path, false, o)
@@ -85,6 +87,10 @@ func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base klonepro
 	f := &git.FetchOptions{
 		RemoteName: remote.Name(),
 	}
+
+	// This is required for the git@github.com origin pattern
+	f.Auth = &ssh.PublicKeysCallback{}
+
 	err = r.Fetch(f)
 	if err != nil {
 		if strings.Contains(err.Error(), "already up-to-date") {

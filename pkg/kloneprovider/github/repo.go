@@ -25,6 +25,7 @@ package github
 import (
 	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/google/go-github/github"
+	"strings"
 )
 
 type Repo struct {
@@ -40,7 +41,10 @@ func (r *Repo) SetImplementation(impl interface{}) {
 }
 
 func (r *Repo) GitCloneUrl() (string) {
-	return *r.impl.GitURL
+	raw := *r.impl.GitURL
+	replc1 := strings.Replace(raw, "://", "@", 1)
+	replc2 := strings.Replace(replc1, "/", ":", 1)
+	return replc2
 }
 func (r *Repo) HttpsCloneUrl() (string) {
 	return *r.impl.CloneURL
