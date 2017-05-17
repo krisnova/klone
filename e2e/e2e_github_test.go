@@ -10,6 +10,7 @@ import (
 	"os"
 	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/klone/kloners/golang"
+	"github.com/kris-nova/klone/pkg/options"
 )
 
 var GitServer kloneprovider.GitServer
@@ -17,6 +18,7 @@ var GitServer kloneprovider.GitServer
 // TestMain will setup the e2e testing suite by creating a new (and concurrent) connection
 // to the Git provider
 func TestMain(m *testing.M) {
+	options.R.TestAuthMode = true // Enable test mode auth
 	provider := klone.NewGithubProvider()
 	gitServer, err := provider.NewGitServer()
 	if err != nil {
