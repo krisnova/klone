@@ -35,6 +35,7 @@ import (
 	"golang.org/x/oauth2"
 	"strings"
 	"fmt"
+	"github.com/kris-nova/klone/pkg/options"
 )
 
 var Cache = fmt.Sprintf("%s/.klone/auth", local.Home())
@@ -315,6 +316,20 @@ func (s *GitServer) GetCredentials() (kloneprovider.GitServerCredentials, error)
 	r := bufio.NewReader(os.Stdin)
 
 	// ----------------------------------------------------------------------------------------
+	// TestMode
+	if options.R.TestAuthMode {
+		if os.Getenv("TEST_KLONE_GITHUBTOKEN") != "" {
+			os.Setenv("KLONE_GITHUBTOKEN", os.Getenv("TEST_KLONE_GITHUBTOKEN"))
+		}
+		if os.Getenv("TEST_KLONE_GITHUBUSER") != "" {
+			os.Setenv("KLONE_GITHUBUSER", os.Getenv("TEST_KLONE_GITHUBUSER"))
+		}
+		if os.Getenv("TEST_KLONE_GITHUBPASS") != "" {
+			os.Setenv("KLONE_GITHUBPASS", os.Getenv("TEST_KLONE_GITHUBPASS"))
+		}
+	}
+
+	// ----------------------------------------------------------------------------------------
 	// Token
 	var token string
 	token = local.SGetContent(Cache)
@@ -327,7 +342,6 @@ func (s *GitServer) GetCredentials() (kloneprovider.GitServerCredentials, error)
 		// Logic here is to always overwrite with env vars in case a user changes
 		token = t
 	}
-	creds.Token = token
 
 	// ----------------------------------------------------------------------------------------
 	// User
@@ -353,6 +367,8 @@ func (s *GitServer) GetCredentials() (kloneprovider.GitServerCredentials, error)
 		pass = p
 	}
 
+	// Final step, build creds
+	creds.Token = token
 	creds.User = user
 	creds.Pass = pass
 	return &creds, nil

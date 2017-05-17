@@ -24,6 +24,7 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
 	o.Auth = &ssh.PublicKeysCallback{}
+
 	path := k.GetCloneDirectory(repo)
 	local.Printf("Cloning into $GOPATH [%s]", path)
 	r, err := git.PlainClone(path, false, o)
