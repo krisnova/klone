@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/kris-nova/klone/pkg/auth"
 	"github.com/kris-nova/klone/pkg/klone"
-	"github.com/kris-nova/klone/pkg/klone/kloners/golang"
+	"github.com/kris-nova/klone/pkg/klone/kloners/gogit"
 	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/local"
 	"github.com/kris-nova/klone/pkg/options"
@@ -83,7 +83,7 @@ func TestNewRepoOwnerKlone(t *testing.T) {
 // The test also handles recursively removing any local files as well as ensuring a GitHub fork
 // is removed before running the test. This test (by design) will use the Golang kloner.
 func TestGoLanguageNeedsFork(t *testing.T) {
-	path := fmt.Sprintf("%s/src/%s/%s/klone-e2e-go", golang.Gopath(), GitServer.GetServerString(), "Nivenly")
+	path := fmt.Sprintf("%s/src/%s/%s/klone-e2e-go", gogit.Gopath(), GitServer.GetServerString(), "Nivenly")
 	t.Logf("Test path: %s", path)
 	repo, err := GitServer.GetRepoByOwner(GitServer.OwnerName(), "klone-e2e-go")
 	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {

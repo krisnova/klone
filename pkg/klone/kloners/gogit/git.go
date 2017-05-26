@@ -1,4 +1,4 @@
-package golang
+package gogit
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package golang
+package gogit
 
 import (
 	"github.com/kris-nova/klone/pkg/kloneprovider"

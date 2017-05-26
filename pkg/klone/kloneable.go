@@ -23,13 +23,13 @@
 package klone
 
 import (
-	"github.com/kris-nova/klone/pkg/kloneprovider"
-	"github.com/kris-nova/klone/pkg/klone/kloners"
-	"github.com/kris-nova/klone/pkg/klone/kloners/simple"
-	"github.com/kris-nova/klone/pkg/klone/kloners/golang"
-	"strings"
-	"github.com/kris-nova/klone/pkg/local"
 	"errors"
+	"github.com/kris-nova/klone/pkg/klone/kloners"
+	"github.com/kris-nova/klone/pkg/klone/kloners/gogit"
+	"github.com/kris-nova/klone/pkg/klone/kloners/simple"
+	"github.com/kris-nova/klone/pkg/kloneprovider"
+	"github.com/kris-nova/klone/pkg/local"
+	"strings"
 )
 
 const (
@@ -40,13 +40,13 @@ const (
 )
 
 // NewKlonerFunc defines the type of function we expect for new kloners
-type NewKlonerFunc func(server kloneprovider.GitServer) (kloners.Kloner)
+type NewKlonerFunc func(server kloneprovider.GitServer) kloners.Kloner
 
 // LanguageToKloner maps languages to kloners
 // All language keys should be lower case, and they are cast as such before assertion
 var LanguageToKloner = map[string]NewKlonerFunc{
 	"":   simple.NewKloner, // Empty lang can use a simple kloner
-	"go": golang.NewKloner, // Go gets a special kloner
+	"go": gogit.NewKloner,  // Go gets a special kloner
 }
 
 // Kloneable is a data structure that holds all relevant data to klone a repository
