@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/kris-nova/klone/pkg/auth"
 	"github.com/kris-nova/klone/pkg/klone"
-	"github.com/kris-nova/klone/pkg/klone/kloners/gogit"
 	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/local"
 	"github.com/kris-nova/klone/pkg/options"
@@ -12,6 +11,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"github.com/kris-nova/klone/pkg/klone/kloners/gogit"
 )
 
 var GitServer kloneprovider.GitServer
@@ -233,3 +233,5 @@ KoiaMr472EqIDviWkbWqORJi9kkm8OFw5WdirYzW8EwQFSsRjIg9
 		t.Fatal("Able to klone with invalid key")
 	}
 }
+
+

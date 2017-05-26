@@ -24,12 +24,18 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 	o := &git.CloneOptions{
 		URL:               repo.GitCloneUrl(),
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+		//Progress:          os.Stdout,
 	}
 	path := k.GetCloneDirectory(repo)
 	local.Printf("Cloning into $GOPATH [%s]", path)
 	r, err := git.PlainClone(path, false, o)
 	if err != nil {
 		if strings.Contains(err.Error(), "repository already exists") {
+			r, err := git.PlainOpen(path)
+			if err != nil {
+				return "", err
+			}
+			k.r = r
 			local.Printf("Clone: %s", err.Error())
 			return path, nil
 		} else if strings.Contains(err.Error(), "unknown capability") {
@@ -88,6 +94,7 @@ func (k *Kloner) AddRemote(name, url string) error {
 	f := &git.FetchOptions{
 		RemoteName: name,
 		Auth:       pk,
+		//Progress:   os.Stdout,
 	}
 	err = r.Fetch(f)
 	if err != nil {
@@ -107,8 +114,8 @@ func (k *Kloner) Pull(name string) error {
 	}
 	o := &git.PullOptions{
 		RemoteName: name,
-		Progress:   os.Stdout,
-		Auth:       pk,
+		//Progress:   os.Stdout,
+		Auth: pk,
 	}
 	local.Printf("Pulling remote [%s]", name)
 	err = k.r.Pull(o)
@@ -130,9 +137,8 @@ func NewKloner(srv kloneprovider.GitServer) kloners.Kloner {
 
 type customPathFunc func(repo kloneprovider.Repo) string
 
-// forkedFromCustomPath will check if a repository was forked from
-// a certain parent, if so use a custom path setting
-var forkedFromCustomPath = map[string]customPathFunc{
+// customPaths is a map of git owners to conversion functions
+var customPaths = map[string]customPathFunc{
 	"kubernetes": repoToKubernetesPath,
 }
 
@@ -142,14 +148,12 @@ func (k *Kloner) GetCloneDirectory(repo kloneprovider.Repo) string {
 	var path string
 	// Default path
 	path = fmt.Sprintf("%s/src/%s/%s/%s", Gopath(), k.gitServer.GetServerString(), repo.Owner(), repo.Name())
-
 	// Check for custom path overrides
-	if repo.ForkedFrom() != nil {
-		for forkedFromOwner, customFunc := range forkedFromCustomPath {
-			if repo.ForkedFrom().Owner() == forkedFromOwner {
-				path = customFunc(repo)
-				break
-			}
+	for owner, customFunc := range customPaths {
+		if repo.Owner() == owner {
+			path = customFunc(repo)
+			//local.Printf("Local path override to [%s]", path)
+			break
 		}
 	}
 	return path
