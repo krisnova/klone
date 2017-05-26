@@ -23,9 +23,9 @@
 package local
 
 import (
-	"os"
 	"fmt"
 	"github.com/fatih/color"
+	"os"
 )
 
 const Version = "1.0.0"

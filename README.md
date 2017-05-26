@@ -6,6 +6,7 @@
 
 ```bash
 go get -u github.com/kris-nova/klone
+klone klone
 ```
 
 # Example
