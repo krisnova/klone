@@ -14,6 +14,7 @@ import (
 
 type Kloner struct {
 	gitServer kloneprovider.GitServer
+	r         *git.Repository
 }
 
 func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
@@ -45,35 +46,25 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 		return "", fmt.Errorf("unable to checkout latest commit: %v", err)
 	}
 	local.Printf("HEAD checked out HEAD at [%s]", commit.Hash)
+	k.r = r
 	return path, nil
 }
 
-func (k *Kloner) DeleteRemote(name string, repo kloneprovider.Repo) error {
-	path := k.GetCloneDirectory(repo)
-	grepo, err := git.PlainOpen(path)
-	if err != nil {
-		return fmt.Errorf("unable to open repository: %v", err)
-	}
-	err = grepo.DeleteRemote(name)
+func (k *Kloner) DeleteRemote(name string) error {
+	err := k.r.DeleteRemote(name)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (k *Kloner) AddRemote(name, url string, base kloneprovider.Repo) error {
-	path := k.GetCloneDirectory(base)
-	grepo, err := git.PlainOpen(path)
-	if err != nil {
-		return fmt.Errorf("unable to open repository: %v", err)
-	}
+func (k *Kloner) AddRemote(name, url string) error {
 	c := &config.RemoteConfig{
 		Name: name,
 		URL:  url,
 	}
-
 	local.Printf("Adding remote [%s][%s]", name, url)
-	r, err := grepo.CreateRemote(c)
+	r, err := k.r.CreateRemote(c)
 	if err != nil {
 		if strings.Contains(err.Error(), "remote already exists") {
 			local.Printf("Remote: %s", err.Error())
@@ -82,7 +73,6 @@ func (k *Kloner) AddRemote(name, url string, base kloneprovider.Repo) error {
 			return fmt.Errorf("unable create remote: %v", err)
 		}
 	}
-
 	local.Printf("Fetching remote [%s]", url)
 	pk, err := auth.GetTransport()
 	if err != nil {
@@ -103,12 +93,7 @@ func (k *Kloner) AddRemote(name, url string, base kloneprovider.Repo) error {
 	return nil
 }
 
-func (k *Kloner) Pull(name string, remote kloneprovider.Repo) error {
-	path := k.GetCloneDirectory(remote)
-	grepo, err := git.PlainOpen(path)
-	if err != nil {
-		return fmt.Errorf("unable to open repository: %v", err)
-	}
+func (k *Kloner) Pull(name string) error {
 	pk, err := auth.GetTransport()
 	if err != nil {
 		return err
@@ -119,7 +104,7 @@ func (k *Kloner) Pull(name string, remote kloneprovider.Repo) error {
 		Auth:       pk,
 	}
 	local.Printf("Pulling remote [%s]", name)
-	err = grepo.Pull(o)
+	err = k.r.Pull(o)
 	if err != nil {
 		if strings.Contains(err.Error(), "already up-to-date") {
 			local.Printf("Pull: %s", err.Error())

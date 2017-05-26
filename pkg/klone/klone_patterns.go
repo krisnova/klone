@@ -16,14 +16,14 @@ func (k *Kloneable) kloneOwner() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = k.kloner.DeleteRemote("origin", k.repo)
+	err = k.kloner.DeleteRemote("origin")
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
 	// Add Origin
 	local.Printf("Register remote [origin]")
 	// Origin is our remote URL, and location is ours too!
-	err = k.kloner.AddRemote("origin", k.repo.GitRemoteUrl(), k.repo)
+	err = k.kloner.AddRemote("origin", k.repo.GitRemoteUrl())
 	if err != nil {
 		return path, err
 	}
@@ -39,26 +39,26 @@ func (k *Kloneable) kloneAlreadyForked() (string, error) {
 	}
 	// Add Origin
 	local.Printf("Register remote [origin]")
-	err = k.kloner.DeleteRemote("origin", k.repo.ForkedFrom())
+	err = k.kloner.DeleteRemote("origin")
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
 	// Origin is our remote URL, but their location on disk
-	err = k.kloner.AddRemote("origin", k.repo.GitRemoteUrl(), k.repo.ForkedFrom())
+	err = k.kloner.AddRemote("origin", k.repo.GitRemoteUrl())
 	if err != nil {
 		return path, err
 	}
 	local.Printf("Register remote [upstream]")
-	err = k.kloner.DeleteRemote("upstream", k.repo.ForkedFrom())
+	err = k.kloner.DeleteRemote("upstream")
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
 	// Upstream is their remote URL, and their location on disk
-	err = k.kloner.AddRemote("upstream", k.repo.ForkedFrom().GitRemoteUrl(), k.repo.ForkedFrom())
+	err = k.kloner.AddRemote("upstream", k.repo.ForkedFrom().GitRemoteUrl())
 	if err != nil {
 		return path, err
 	}
-	err = k.kloner.Pull("upstream", k.repo.ForkedFrom())
+	err = k.kloner.Pull("upstream")
 	if err != nil {
 		return path, err
 	}
@@ -103,28 +103,28 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 	}
 	// Add Origin
 	local.Printf("Register remote [origin]")
-	err = k.kloner.DeleteRemote("origin", k.repo)
+	err = k.kloner.DeleteRemote("origin")
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
-	err = k.kloner.AddRemote("origin", newRepo.GitRemoteUrl(), k.repo)
+	err = k.kloner.AddRemote("origin", newRepo.GitRemoteUrl())
 	if err != nil {
 		return path, err
 	}
 
 	// Add Upstream
 	local.Printf("Register remote [upstream]")
-	err = k.kloner.DeleteRemote("upstream", k.repo)
+	err = k.kloner.DeleteRemote("upstream")
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
-	err = k.kloner.AddRemote("upstream", k.repo.GitRemoteUrl(), k.repo)
+	err = k.kloner.AddRemote("upstream", k.repo.GitRemoteUrl())
 	if err != nil {
 		return path, err
 	}
 
 	// Pull
-	err = k.kloner.Pull("upstream", k.repo)
+	err = k.kloner.Pull("upstream")
 	if err != nil {
 		return path, err
 	}

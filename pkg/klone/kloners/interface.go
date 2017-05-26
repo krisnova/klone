@@ -4,8 +4,8 @@ import "github.com/kris-nova/klone/pkg/kloneprovider"
 
 type Kloner interface {
 	Clone(repo kloneprovider.Repo) (string, error)
-	Pull(name string, remote kloneprovider.Repo) error
-	AddRemote(name, url string, base kloneprovider.Repo) error
-	DeleteRemote(name string, repo kloneprovider.Repo) error
+	Pull(remote string) error
+	AddRemote(name, url string) error
+	DeleteRemote(name string) error
 	GetCloneDirectory(repo kloneprovider.Repo) string
 }
