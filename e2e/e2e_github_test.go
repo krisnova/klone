@@ -1,16 +1,16 @@
 package e2e
 
 import (
-	"testing"
 	"fmt"
-	"gopkg.in/src-d/go-git.v4"
-	"github.com/kris-nova/klone/pkg/local"
-	"strings"
 	"github.com/kris-nova/klone/pkg/klone"
-	"os"
-	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/klone/kloners/golang"
+	"github.com/kris-nova/klone/pkg/kloneprovider"
+	"github.com/kris-nova/klone/pkg/local"
 	"github.com/kris-nova/klone/pkg/options"
+	"gopkg.in/src-d/go-git.v4"
+	"os"
+	"strings"
+	"testing"
 )
 
 var GitServer kloneprovider.GitServer
@@ -68,9 +68,10 @@ func TestNewRepoOwnerKlone(t *testing.T) {
 		}
 		name := rspl[0]
 		url := rspl[1]
-		if strings.Contains(name, "origin") && strings.Contains(url, fmt.Sprintf("git://github.com/%s/klone-e2e-empty.git", GitServer.OwnerName())) {
+		if strings.Contains(name, "origin") && strings.Contains(url, fmt.Sprintf("git@github.com:%s/klone-e2e-empty.git", GitServer.OwnerName())) {
 			originOk = true
 		}
+		//fmt.Println(name, url)
 	}
 	if originOk == false {
 		t.Fatal("Error detecting remote [origin]")
@@ -81,10 +82,10 @@ func TestNewRepoOwnerKlone(t *testing.T) {
 // The test also handles recursively removing any local files as well as ensuring a GitHub fork
 // is removed before running the test. This test (by design) will use the Golang kloner.
 func TestGoLanguageNeedsFork(t *testing.T) {
-	path := fmt.Sprintf("%s/src/%s/%s/klone-e2e-go", golang.Gopath(), GitServer.GetServerString(), GitServer.OwnerName())
+	path := fmt.Sprintf("%s/src/%s/%s/klone-e2e-go", golang.Gopath(), GitServer.GetServerString(), "Nivenly")
 	t.Logf("Test path: %s", path)
 	repo, err := GitServer.GetRepoByOwner(GitServer.OwnerName(), "klone-e2e-go")
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
 		t.Fatalf("Unable to attempt to search for repo: %v", err)
 	}
 	if repo != nil && repo.Owner() == GitServer.OwnerName() {
@@ -113,10 +114,10 @@ func TestGoLanguageNeedsFork(t *testing.T) {
 		}
 		name := rspl[0]
 		url := rspl[1]
-		if strings.Contains(name, "origin") && strings.Contains(url, fmt.Sprintf("git://github.com/%s/klone-e2e-go.git", GitServer.OwnerName())) {
+		if strings.Contains(name, "origin") && strings.Contains(url, fmt.Sprintf("git@github.com:%s/klone-e2e-go.git", GitServer.OwnerName())) {
 			originOk = true
 		}
-		if strings.Contains(name, "upstream") && strings.Contains(url, fmt.Sprintf("git://github.com/%s/klone-e2e-go.git", "Nivenly")) {
+		if strings.Contains(name, "upstream") && strings.Contains(url, fmt.Sprintf("git@github.com:%s/klone-e2e-go.git", "Nivenly")) {
 			upstreamOk = true
 		}
 	}
@@ -136,7 +137,7 @@ func TestUnknownLanguageNeedsFork(t *testing.T) {
 	path := fmt.Sprintf("%s/klone-e2e-unknown", local.Home())
 	t.Logf("Test path: %s", path)
 	repo, err := GitServer.GetRepoByOwner(GitServer.OwnerName(), "klone-e2e-unknown")
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
 		t.Fatalf("Unable to attempt to search for repo: %v", err)
 	}
 	if repo != nil && repo.Owner() == GitServer.OwnerName() {
@@ -165,10 +166,10 @@ func TestUnknownLanguageNeedsFork(t *testing.T) {
 		}
 		name := rspl[0]
 		url := rspl[1]
-		if strings.Contains(name, "origin") && strings.Contains(url, fmt.Sprintf("git://github.com/%s/klone-e2e-unknown.git", GitServer.OwnerName())) {
+		if strings.Contains(name, "origin") && strings.Contains(url, fmt.Sprintf("git@github.com:%s/klone-e2e-unknown.git", GitServer.OwnerName())) {
 			originOk = true
 		}
-		if strings.Contains(name, "upstream") && strings.Contains(url, fmt.Sprintf("git://github.com/%s/klone-e2e-unknown.git", "Nivenly")) {
+		if strings.Contains(name, "upstream") && strings.Contains(url, fmt.Sprintf("git@github.com:%s/klone-e2e-unknown.git", "Nivenly")) {
 			upstreamOk = true
 		}
 	}

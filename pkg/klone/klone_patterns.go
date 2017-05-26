@@ -16,15 +16,15 @@ func (k *Kloneable) kloneOwner() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	local.Printf("Register remote [origin]")
 	err = k.kloner.DeleteRemote("origin", k.repo)
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
 	// Add Origin
 	local.Printf("Register remote [origin]")
-	err = k.kloner.DeleteRemote("origin", k.repo.ForkedFrom())
-	if err != nil && !strings.Contains(err.Error(), "remote not found") {
+	// Origin is our remote URL, and location is ours too!
+	err = k.kloner.AddRemote("origin", k.repo.GitRemoteUrl(), k.repo)
+	if err != nil {
 		return path, err
 	}
 	return path, nil
@@ -96,7 +96,8 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 		}
 	}
 	local.Printf("Attempting git clone")
-	path, err := k.kloner.Clone(newRepo)
+	// clone with the original repo
+	path, err := k.kloner.Clone(k.repo)
 	if err != nil {
 		return "", err
 	}
@@ -117,9 +118,16 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
-	err = k.kloner.AddRemote("upstream", k.repo.GitRemoteUrl(), newRepo)
+	err = k.kloner.AddRemote("upstream", k.repo.GitRemoteUrl(), k.repo)
 	if err != nil {
 		return path, err
 	}
+
+	// Pull
+	err = k.kloner.Pull("upstream", k.repo)
+	if err != nil {
+		return path, err
+	}
+
 	return path, nil
 }

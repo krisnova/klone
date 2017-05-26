@@ -8,7 +8,6 @@ import (
 	"github.com/kris-nova/klone/pkg/local"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
-	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
 	"os"
 	"strings"
 )
@@ -22,8 +21,6 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 		URL:               repo.GitCloneUrl(),
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
-	o.Auth = &ssh.PublicKeysCallback{}
-
 	path := k.GetCloneDirectory(repo)
 	local.Printf("Cloning into [%s]", path)
 	r, err := git.PlainClone(path, false, o)
