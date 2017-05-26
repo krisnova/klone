@@ -7,21 +7,23 @@ import (
 	"strings"
 )
 
-const secondsToWaitForGithubClone = 20
+const waitForForkSeconds = 4
 
-// The user is the owner, and the repository is not a fork
+// kloneOwner is the function that is called when we will be cloning into
+// a repository where we are the owner. E.G. this is ours, and not a fork.
 func (k *Kloneable) kloneOwner() (string, error) {
 	local.Printf("Attempting git clone")
 	path, err := k.kloner.Clone(k.repo)
 	if err != nil {
 		return "", err
 	}
+	// Always delete origins
+	local.Printf("Register remote [origin]")
 	err = k.kloner.DeleteRemote("origin")
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
 	// Add Origin
-	local.Printf("Register remote [origin]")
 	// Origin is our remote URL, and location is ours too!
 	err = k.kloner.AddRemote("origin", k.repo.GitRemoteUrl())
 	if err != nil {
@@ -30,7 +32,8 @@ func (k *Kloneable) kloneOwner() (string, error) {
 	return path, nil
 }
 
-// The user is the owner, and the repository was forked from somewhere
+// kloneAlreadyForked is called when we are cloning into a parent repository
+// on disk, but the origin is ours.
 func (k *Kloneable) kloneAlreadyForked() (string, error) {
 	local.Printf("Attempting git clone")
 	path, err := k.kloner.Clone(k.repo.ForkedFrom())
@@ -58,37 +61,38 @@ func (k *Kloneable) kloneAlreadyForked() (string, error) {
 	if err != nil {
 		return path, err
 	}
+	// Pull
+	local.Printf("Pull [upstream]")
 	err = k.kloner.Pull("upstream")
 	if err != nil {
 		return path, err
 	}
-
 	return path, nil
 }
 
-// The user is NOT the owner, and the repository is already forked
+// kloneTryingFork wraps kloneNeedsFork()
 func (k *Kloneable) kloneTryingFork() (string, error) {
 	return k.kloneNeedsFork()
 }
 
-// The user is NOT the owner, and the user does NOT have a fork already
+// kloneNeedsFork will first attempt to fork a repository before cloning the repository.
+// We will clone to the parent's location on disk, but with our origin
 func (k *Kloneable) kloneNeedsFork() (string, error) {
 	local.Printf("Forking [%s/%s] to [%s/%s]", k.repo.Owner(), k.repo.Name(), k.gitServer.OwnerName(), k.repo.Name())
-	// GitHub fork
 	var newRepo kloneprovider.Repo
 	newRepo, err := k.gitServer.Fork(k.repo, k.gitServer.OwnerName())
 	if err != nil {
 		if strings.Contains(err.Error(), "job scheduled on GitHub side") {
-			// Forking takes a while in GitHub so let's wait for it
-			for i := 1; i <= secondsToWaitForGithubClone; i++ {
+			// Forking might take a while, so poll for it
+			for i := 1; i <= waitForForkSeconds; i++ {
 				repo, err := k.gitServer.GetRepo(k.repo.Name())
 				newRepo = repo
 				if err == nil {
 					local.Printf("Succesfully detected new repository [%s/%s]", repo.Owner(), repo.Name())
 					break
 				}
-				if i == secondsToWaitForGithubClone {
-					return "", fmt.Errorf("unable to detect forked repository after waiting %d seconds", secondsToWaitForGithubClone)
+				if i == waitForForkSeconds {
+					return "", fmt.Errorf("unable to detect forked repository after waiting %d seconds", waitForForkSeconds)
 				}
 			}
 		} else {
@@ -101,12 +105,13 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// Add Origin
+	// Always delete origin
 	local.Printf("Register remote [origin]")
 	err = k.kloner.DeleteRemote("origin")
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
+	// Add origin
 	err = k.kloner.AddRemote("origin", newRepo.GitRemoteUrl())
 	if err != nil {
 		return path, err
@@ -124,6 +129,7 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 	}
 
 	// Pull
+	local.Printf("Pull [upstream]")
 	err = k.kloner.Pull("upstream")
 	if err != nil {
 		return path, err

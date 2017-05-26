@@ -23,20 +23,19 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
-	"os"
-	"github.com/spf13/cobra"
+	"github.com/kris-nova/klone/pkg/auth"
 	"github.com/kris-nova/klone/pkg/klone"
 	"github.com/kris-nova/klone/pkg/local"
-	"errors"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 var RootCmd = &cobra.Command{
 	Use:   "klone",
 	Short: "Used to clone a git repository with style.",
 	Long:  `Klone allows you define custom logic based on repository programming language.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		local.PrintStartBanner()
 		if len(args) > 0 {
@@ -58,5 +57,5 @@ func Execute() {
 }
 
 func init() {
-	//RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.klone.yaml)")
+	RootCmd.Flags().StringVarP(&auth.OptPrivateKey, "identity-file", "i", "~/.ssh/id_rsa", "The private key to use for a git clone operation.")
 }
