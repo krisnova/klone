@@ -1,13 +1,14 @@
 package local
 
 import (
+	"io"
 	"io/ioutil"
 	"os"
-	"io"
 	"strings"
 )
 
 func SPutContent(data, path string) error {
+	path = Expand(path)
 	fo, err := os.Create(path)
 	if err != nil {
 		return err
@@ -21,6 +22,7 @@ func SPutContent(data, path string) error {
 }
 
 func SGetContent(path string) string {
+	path = Expand(path)
 	b, err := ioutil.ReadFile(path) // just pass the file name
 	if err != nil {
 		//RecoverableErrorf("reading %s: %v", path, err)
@@ -30,6 +32,7 @@ func SGetContent(path string) string {
 }
 
 func BGetContent(path string) []byte {
+	path = Expand(path)
 	b, err := ioutil.ReadFile(path) // just pass the file name
 	if err != nil {
 		//RecoverableErrorf("reading %s: %v", path, err)

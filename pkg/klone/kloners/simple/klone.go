@@ -2,12 +2,14 @@ package simple
 
 import (
 	"fmt"
+	"github.com/kris-nova/klone/pkg/auth"
 	"github.com/kris-nova/klone/pkg/klone/kloners"
 	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/local"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
+	"os"
 	"strings"
 )
 
@@ -74,7 +76,7 @@ func (k *Kloner) AddRemote(name, url string, base kloneprovider.Repo) error {
 	}
 
 	local.Printf("Adding remote [%s][%s]", name, url)
-	_, err = grepo.CreateRemote(c)
+	r, err := grepo.CreateRemote(c)
 	if err != nil {
 		if strings.Contains(err.Error(), "remote already exists") {
 			local.Printf("Remote: %s", err.Error())
@@ -83,25 +85,51 @@ func (k *Kloner) AddRemote(name, url string, base kloneprovider.Repo) error {
 			return fmt.Errorf("unable create remote: %v", err)
 		}
 	}
-	//local.Printf("Fetching remote [%s]", url)
-	//f := &git.FetchOptions{
-	//	RemoteName: remote.Name(),
-	//}
-	//
-	//// This is required for the git@github.com origin pattern
-	//f.Auth = &ssh.PublicKeysCallback{}
-	//
-	//err = r.Fetch(f)
-	//if err != nil {
-	//	if strings.Contains(err.Error(), "already up-to-date") {
-	//		local.Printf("Fetch: %s", err.Error())
-	//		return nil
-	//	}
-	//	return fmt.Errorf("unable to fetch remote: %v", err)
-	//}
+
+	local.Printf("Fetching remote [%s]", url)
+	pk, err := auth.GetTransport()
+	if err != nil {
+		return err
+	}
+	f := &git.FetchOptions{
+		RemoteName: name,
+		Auth:       pk,
+	}
+	err = r.Fetch(f)
+	if err != nil {
+		if strings.Contains(err.Error(), "already up-to-date") {
+			local.Printf("Fetch: %s", err.Error())
+			return nil
+		}
+		return fmt.Errorf("unable to fetch remote: %v", err)
+	}
 	return nil
 }
+
 func (k *Kloner) Pull(name string, remote kloneprovider.Repo) error {
+	path := k.GetCloneDirectory(remote)
+	grepo, err := git.PlainOpen(path)
+	if err != nil {
+		return fmt.Errorf("unable to open repository: %v", err)
+	}
+	pk, err := auth.GetTransport()
+	if err != nil {
+		return err
+	}
+	o := &git.PullOptions{
+		RemoteName: name,
+		Progress:   os.Stdout,
+		Auth:       pk,
+	}
+	local.Printf("Pulling remote [%s]", name)
+	err = grepo.Pull(o)
+	if err != nil {
+		if strings.Contains(err.Error(), "already up-to-date") {
+			local.Printf("Pull: %s", err.Error())
+			return nil
+		}
+		return err
+	}
 	return nil
 }
 

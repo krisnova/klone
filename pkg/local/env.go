@@ -1,6 +1,9 @@
 package local
 
-import "os/user"
+import (
+	"os/user"
+	"strings"
+)
 
 func Home() string {
 	usr, err := user.Current()
@@ -9,4 +12,11 @@ func Home() string {
 		return ""
 	}
 	return usr.HomeDir
+}
+
+func Expand(path string) string {
+	if strings.Contains(path, "~") {
+		return strings.Replace(path, "~", Home(), 1)
+	}
+	return path
 }

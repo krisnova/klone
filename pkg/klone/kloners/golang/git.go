@@ -2,6 +2,8 @@ package golang
 
 import (
 	"fmt"
+	//"github.com/kris-nova/klone/pkg/auth"
+	"github.com/kris-nova/klone/pkg/auth"
 	"github.com/kris-nova/klone/pkg/klone/kloners"
 	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/local"
@@ -63,8 +65,8 @@ func (k *Kloner) DeleteRemote(name string, repo kloneprovider.Repo) error {
 }
 
 // Add remote will add a new remote, and fetch from the remote branch
-func (k *Kloner) AddRemote(name, url string, repo kloneprovider.Repo) error {
-	path := k.GetCloneDirectory(repo)
+func (k *Kloner) AddRemote(name, url string, base kloneprovider.Repo) error {
+	path := k.GetCloneDirectory(base)
 	grepo, err := git.PlainOpen(path)
 	if err != nil {
 		return fmt.Errorf("unable to open repository: %v", err)
@@ -73,8 +75,9 @@ func (k *Kloner) AddRemote(name, url string, repo kloneprovider.Repo) error {
 		Name: name,
 		URL:  url,
 	}
+
 	local.Printf("Adding remote [%s][%s]", name, url)
-	_, err = grepo.CreateRemote(c)
+	r, err := grepo.CreateRemote(c)
 	if err != nil {
 		if strings.Contains(err.Error(), "remote already exists") {
 			local.Printf("Remote: %s", err.Error())
@@ -83,32 +86,50 @@ func (k *Kloner) AddRemote(name, url string, repo kloneprovider.Repo) error {
 			return fmt.Errorf("unable create remote: %v", err)
 		}
 	}
+
+	local.Printf("Fetching remote [%s]", url)
+	pk, err := auth.GetTransport()
+	if err != nil {
+		return err
+	}
+	f := &git.FetchOptions{
+		RemoteName: name,
+		Auth:       pk,
+	}
+	err = r.Fetch(f)
+	if err != nil {
+		if strings.Contains(err.Error(), "already up-to-date") {
+			local.Printf("Fetch: %s", err.Error())
+			return nil
+		}
+		return fmt.Errorf("unable to fetch remote: %v", err)
+	}
 	return nil
 }
 
 func (k *Kloner) Pull(name string, remote kloneprovider.Repo) error {
-	fmt.Println("PULL")
 	path := k.GetCloneDirectory(remote)
 	grepo, err := git.PlainOpen(path)
 	if err != nil {
 		return fmt.Errorf("unable to open repository: %v", err)
 	}
-
-	list, err := grepo.Remotes()
+	pk, err := auth.GetTransport()
 	if err != nil {
 		return err
 	}
-
-	for _, r := range list {
-		fmt.Println(r)
-	}
-
 	o := &git.PullOptions{
 		RemoteName: name,
+		Progress:   os.Stdout,
+		Auth:       pk,
 	}
+	local.Printf("Pulling remote [%s]", name)
 	err = grepo.Pull(o)
 	if err != nil {
-		return err
+		if strings.Contains(err.Error(), "already up-to-date") {
+			local.Printf("Pull: %s", err.Error())
+			return nil
+		}
+		return fmt.Errorf("unable to pull remote: %v", err)
 	}
 	return nil
 }

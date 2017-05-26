@@ -20,5 +20,5 @@
   name = "golang.org/x/oauth2"
 
 [[dependencies]]
-  branch = "v4"
   name = "gopkg.in/src-d/go-git.v4"
+  revision = "7e249dfcf28765939bde8f38784b3274b522f880"
