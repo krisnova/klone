@@ -1,15 +1,14 @@
 package golang
 
 import (
+	"fmt"
 	"github.com/kris-nova/klone/pkg/klone/kloners"
 	"github.com/kris-nova/klone/pkg/kloneprovider"
-	"gopkg.in/src-d/go-git.v4"
-	"os"
 	"github.com/kris-nova/klone/pkg/local"
-	"fmt"
+	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
+	"os"
 	"strings"
-	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
 )
 
 type Kloner struct {
@@ -23,8 +22,6 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 		URL:               repo.GitCloneUrl(),
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
-	o.Auth = &ssh.PublicKeysCallback{}
-
 	path := k.GetCloneDirectory(repo)
 	local.Printf("Cloning into $GOPATH [%s]", path)
 	r, err := git.PlainClone(path, false, o)
@@ -66,18 +63,18 @@ func (k *Kloner) DeleteRemote(name string, repo kloneprovider.Repo) error {
 }
 
 // Add remote will add a new remote, and fetch from the remote branch
-func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base kloneprovider.Repo) error {
-	path := k.GetCloneDirectory(base)
+func (k *Kloner) AddRemote(name, url string, repo kloneprovider.Repo) error {
+	path := k.GetCloneDirectory(repo)
 	grepo, err := git.PlainOpen(path)
 	if err != nil {
 		return fmt.Errorf("unable to open repository: %v", err)
 	}
 	c := &config.RemoteConfig{
 		Name: name,
-		URL:  remote.GitCloneUrl(),
+		URL:  url,
 	}
-	local.Printf("Adding remote [%s][%s]", name, remote.GitCloneUrl())
-	r, err := grepo.CreateRemote(c)
+	local.Printf("Adding remote [%s][%s]", name, url)
+	_, err = grepo.CreateRemote(c)
 	if err != nil {
 		if strings.Contains(err.Error(), "remote already exists") {
 			local.Printf("Remote: %s", err.Error())
@@ -86,26 +83,37 @@ func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base klonepro
 			return fmt.Errorf("unable create remote: %v", err)
 		}
 	}
-	local.Printf("Fetching remote [%s]", remote.Name())
-	f := &git.FetchOptions{
-		RemoteName: remote.Name(),
+	return nil
+}
+
+func (k *Kloner) Pull(name string, remote kloneprovider.Repo) error {
+	fmt.Println("PULL")
+	path := k.GetCloneDirectory(remote)
+	grepo, err := git.PlainOpen(path)
+	if err != nil {
+		return fmt.Errorf("unable to open repository: %v", err)
 	}
 
-	// This is required for the git@github.com origin pattern
-	f.Auth = &ssh.PublicKeysCallback{}
-
-	err = r.Fetch(f)
+	list, err := grepo.Remotes()
 	if err != nil {
-		if strings.Contains(err.Error(), "already up-to-date") {
-			local.Printf("Fetch: %s", err.Error())
-			return nil
-		}
-		return fmt.Errorf("unable to fetch remote: %v", err)
+		return err
+	}
+
+	for _, r := range list {
+		fmt.Println(r)
+	}
+
+	o := &git.PullOptions{
+		RemoteName: name,
+	}
+	err = grepo.Pull(o)
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-func NewKloner(srv kloneprovider.GitServer) (kloners.Kloner) {
+func NewKloner(srv kloneprovider.GitServer) kloners.Kloner {
 	return &Kloner{
 		gitServer: srv,
 	}

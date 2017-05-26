@@ -1,14 +1,14 @@
 package simple
 
 import (
+	"fmt"
 	"github.com/kris-nova/klone/pkg/klone/kloners"
 	"github.com/kris-nova/klone/pkg/kloneprovider"
-	"gopkg.in/src-d/go-git.v4"
 	"github.com/kris-nova/klone/pkg/local"
-	"strings"
-	"fmt"
+	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
+	"strings"
 )
 
 type Kloner struct {
@@ -21,7 +21,7 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	}
 	o.Auth = &ssh.PublicKeysCallback{}
-	
+
 	path := k.GetCloneDirectory(repo)
 	local.Printf("Cloning into [%s]", path)
 	r, err := git.PlainClone(path, false, o)
@@ -62,7 +62,7 @@ func (k *Kloner) DeleteRemote(name string, repo kloneprovider.Repo) error {
 	return nil
 }
 
-func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base kloneprovider.Repo) error {
+func (k *Kloner) AddRemote(name, url string, base kloneprovider.Repo) error {
 	path := k.GetCloneDirectory(base)
 	grepo, err := git.PlainOpen(path)
 	if err != nil {
@@ -70,11 +70,11 @@ func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base klonepro
 	}
 	c := &config.RemoteConfig{
 		Name: name,
-		URL:  remote.GitCloneUrl(),
+		URL:  url,
 	}
 
-	local.Printf("Adding remote [%s][%s]", name, remote.GitCloneUrl())
-	r, err := grepo.CreateRemote(c)
+	local.Printf("Adding remote [%s][%s]", name, url)
+	_, err = grepo.CreateRemote(c)
 	if err != nil {
 		if strings.Contains(err.Error(), "remote already exists") {
 			local.Printf("Remote: %s", err.Error())
@@ -83,22 +83,25 @@ func (k *Kloner) AddRemote(name string, remote kloneprovider.Repo, base klonepro
 			return fmt.Errorf("unable create remote: %v", err)
 		}
 	}
-	local.Printf("Fetching remote [%s]", remote.Name())
-	f := &git.FetchOptions{
-		RemoteName: remote.Name(),
-	}
-
-	// This is required for the git@github.com origin pattern
-	f.Auth = &ssh.PublicKeysCallback{}
-
-	err = r.Fetch(f)
-	if err != nil {
-		if strings.Contains(err.Error(), "already up-to-date") {
-			local.Printf("Fetch: %s", err.Error())
-			return nil
-		}
-		return fmt.Errorf("unable to fetch remote: %v", err)
-	}
+	//local.Printf("Fetching remote [%s]", url)
+	//f := &git.FetchOptions{
+	//	RemoteName: remote.Name(),
+	//}
+	//
+	//// This is required for the git@github.com origin pattern
+	//f.Auth = &ssh.PublicKeysCallback{}
+	//
+	//err = r.Fetch(f)
+	//if err != nil {
+	//	if strings.Contains(err.Error(), "already up-to-date") {
+	//		local.Printf("Fetch: %s", err.Error())
+	//		return nil
+	//	}
+	//	return fmt.Errorf("unable to fetch remote: %v", err)
+	//}
+	return nil
+}
+func (k *Kloner) Pull(name string, remote kloneprovider.Repo) error {
 	return nil
 }
 
@@ -106,7 +109,7 @@ func (k *Kloner) GetCloneDirectory(repo kloneprovider.Repo) string {
 	return fmt.Sprintf("%s/%s", local.Home(), repo.Name())
 }
 
-func NewKloner(srv kloneprovider.GitServer) (kloners.Kloner) {
+func NewKloner(srv kloneprovider.GitServer) kloners.Kloner {
 	return &Kloner{
 		gitServer: srv,
 	}

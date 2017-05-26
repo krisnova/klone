@@ -33,25 +33,26 @@ type Command interface {
 	Exec()
 	GetStdErr() ([]byte, error)
 	GetStdOut() ([]byte, error)
-	Next() (Command)
+	Next() Command
 }
 
 // Repo represents a git repository
 type Repo interface {
-	GitCloneUrl() (string)
-	HttpsCloneUrl() (string)
-	Language() (string)
-	Owner() (string)
-	Name() (string)
-	Description() (string)
-	ForkedFrom() (Repo)
-	GetKlonefile() ([]byte)
+	GitCloneUrl() string
+	GitRemoteUrl() string
+	HttpsCloneUrl() string
+	Language() string
+	Owner() string
+	Name() string
+	Description() string
+	ForkedFrom() Repo
+	GetKlonefile() []byte
 	SetImplementation(interface{})
 }
 
 // GitServer represents a git server (like github.com)
 type GitServer interface {
-	Authenticate(GitServerCredentials) (error)
+	Authenticate(GitServerCredentials) error
 	GetCredentials() (GitServerCredentials, error)
 	GetServerString() string
 	GetRepos() (map[string]Repo, error)

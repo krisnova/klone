@@ -23,8 +23,8 @@
 package github
 
 import (
-	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/google/go-github/github"
+	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"strings"
 )
 
@@ -40,16 +40,21 @@ func (r *Repo) SetImplementation(impl interface{}) {
 	r.impl = gh
 }
 
-func (r *Repo) GitCloneUrl() (string) {
-	raw := *r.impl.GitURL
+func (r *Repo) GitRemoteUrl() string {
+	raw := r.impl.GetGitURL()
 	replc1 := strings.Replace(raw, "://", "@", 1)
 	replc2 := strings.Replace(replc1, "/", ":", 1)
 	return replc2
 }
-func (r *Repo) HttpsCloneUrl() (string) {
+
+func (r *Repo) GitCloneUrl() string {
+	return r.impl.GetGitURL()
+}
+
+func (r *Repo) HttpsCloneUrl() string {
 	return *r.impl.CloneURL
 }
-func (r *Repo) Language() (string) {
+func (r *Repo) Language() string {
 	if r.impl.Source == nil {
 		if r.impl.Language != nil {
 			return *r.impl.Language
@@ -61,24 +66,24 @@ func (r *Repo) Language() (string) {
 	}
 	return *r.impl.Source.Language
 }
-func (r *Repo) Owner() (string) {
+func (r *Repo) Owner() string {
 	if r.impl == nil {
 		return r.assumedOwner
 	}
 	return *r.impl.Owner.Login
 }
-func (r *Repo) Name() (string) {
+func (r *Repo) Name() string {
 	return *r.impl.Name
 }
-func (r *Repo) Description() (string) {
+func (r *Repo) Description() string {
 	return *r.impl.Description
 }
-func (r *Repo) ForkedFrom() (kloneprovider.Repo) {
+func (r *Repo) ForkedFrom() kloneprovider.Repo {
 	if r.forkedFrom == nil {
 		return nil
 	}
 	return r.forkedFrom
 }
-func (r *Repo) GetKlonefile() ([]byte) {
+func (r *Repo) GetKlonefile() []byte {
 	return []byte("")
 }
