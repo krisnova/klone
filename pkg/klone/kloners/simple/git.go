@@ -8,7 +8,6 @@ import (
 	"github.com/kris-nova/klone/pkg/local"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
-	"os"
 	"strings"
 )
 
