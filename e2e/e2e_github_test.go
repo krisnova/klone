@@ -4,21 +4,31 @@ import (
 	"fmt"
 	"github.com/kris-nova/klone/pkg/auth"
 	"github.com/kris-nova/klone/pkg/klone"
-	"github.com/kris-nova/klone/pkg/kloneprovider"
+	"github.com/kris-nova/klone/pkg/klone/kloners/gogit"
 	"github.com/kris-nova/klone/pkg/local"
 	"github.com/kris-nova/klone/pkg/options"
+	"github.com/kris-nova/klone/pkg/provider"
 	"gopkg.in/src-d/go-git.v4"
 	"os"
 	"strings"
 	"testing"
-	"github.com/kris-nova/klone/pkg/klone/kloners/gogit"
 )
 
-var GitServer kloneprovider.GitServer
+var GitServer provider.GitServer
 
 // TestMain will setup the e2e testing suite by creating a new (and concurrent) connection
 // to the Git provider
 func TestMain(m *testing.M) {
+	os.Setenv("KLONE_WORKSPACE", local.Home()) // Always test in the home directory..
+	if os.Getenv("TEST_KLONE_GITHUBTOKEN") != "" {
+		os.Setenv("KLONE_GITHUBTOKEN", os.Getenv("TEST_KLONE_GITHUBTOKEN"))
+	}
+	if os.Getenv("TEST_KLONE_GITHUBUSER") != "" {
+		os.Setenv("KLONE_GITHUBUSER", os.Getenv("TEST_KLONE_GITHUBUSER"))
+	}
+	if os.Getenv("TEST_KLONE_GITHUBPASS") != "" {
+		os.Setenv("KLONE_GITHUBPASS", os.Getenv("TEST_KLONE_GITHUBPASS"))
+	}
 	options.R.TestAuthMode = true // Enable test mode auth
 	provider := klone.NewGithubProvider()
 	gitServer, err := provider.NewGitServer()
@@ -233,5 +243,3 @@ KoiaMr472EqIDviWkbWqORJi9kkm8OFw5WdirYzW8EwQFSsRjIg9
 		t.Fatal("Able to klone with invalid key")
 	}
 }
-
-

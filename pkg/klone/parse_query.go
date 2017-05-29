@@ -1,15 +1,15 @@
 package klone
 
 import (
-	"github.com/kris-nova/klone/pkg/kloneprovider"
+	"github.com/kris-nova/klone/pkg/provider"
 	"strings"
 	"github.com/kris-nova/klone/pkg/local"
 )
 
 type QueryInformation struct {
-	gitServer     kloneprovider.GitServer
-	kloneProvider kloneprovider.KloneProvider
-	repo          kloneprovider.Repo
+	gitServer     provider.GitServer
+	kloneProvider provider.KloneProvider
+	repo          provider.Repo
 	repoName      string
 	repoOwner     string
 }

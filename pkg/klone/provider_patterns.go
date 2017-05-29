@@ -24,11 +24,11 @@
 package klone
 
 import (
-	"github.com/kris-nova/klone/pkg/kloneprovider/github"
-	"github.com/kris-nova/klone/pkg/kloneprovider"
+	"github.com/kris-nova/klone/pkg/provider"
+	"github.com/kris-nova/klone/pkg/provider/github"
 )
 
-func NewGithubProvider() (kloneprovider.KloneProvider) {
+func NewGithubProvider() provider.KloneProvider {
 	var kloner *github.KloneProvider
 	return kloner
 }

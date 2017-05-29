@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"github.com/kris-nova/klone/pkg/auth"
 	"github.com/kris-nova/klone/pkg/klone/kloners"
-	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/local"
+	"github.com/kris-nova/klone/pkg/provider"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
+	"os"
 	"strings"
 )
 
 type Kloner struct {
-	gitServer kloneprovider.GitServer
+	gitServer provider.GitServer
 	r         *git.Repository
 }
 
-func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
+func (k *Kloner) Clone(repo provider.Repo) (string, error) {
 	o := &git.CloneOptions{
 		URL:               repo.GitCloneUrl(),
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
@@ -27,12 +28,12 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 	r, err := git.PlainClone(path, false, o)
 	if err != nil {
 		if strings.Contains(err.Error(), "repository already exists") {
+			local.Printf("Clone: %s", err.Error())
 			r, err := git.PlainOpen(path)
 			if err != nil {
 				return "", err
 			}
 			k.r = r
-			local.Printf("Clone: %s", err.Error())
 			return path, nil
 		} else if strings.Contains(err.Error(), "unknown capability") {
 			// Todo (@kris-nova) handle capability errors better https://github.com/kris-nova/klone/issues/5
@@ -121,11 +122,20 @@ func (k *Kloner) Pull(name string) error {
 	return nil
 }
 
-func (k *Kloner) GetCloneDirectory(repo kloneprovider.Repo) string {
-	return fmt.Sprintf("%s/%s", local.Home(), repo.Name())
+func (k *Kloner) GetCloneDirectory(repo provider.Repo) string {
+	ws := os.Getenv("KLONE_WORKSPACE")
+	if ws != "" {
+		return fmt.Sprintf("%s/%s", ws, repo.Name())
+	}
+	wd, err := os.Getwd()
+	if err != nil {
+		local.RecoverableErrorf("unable to determine current directory")
+		return fmt.Sprintf("%s/%s", local.Home(), repo.Name())
+	}
+	return fmt.Sprintf("%s/%s", wd, repo.Name())
 }
 
-func NewKloner(srv kloneprovider.GitServer) kloners.Kloner {
+func NewKloner(srv provider.GitServer) kloners.Kloner {
 	return &Kloner{
 		gitServer: srv,
 	}

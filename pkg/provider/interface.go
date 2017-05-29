@@ -21,7 +21,7 @@
 // interface.go defines the kloneprovider interfaces. These represent the logic we will need
 // to work with the klone (and other) routines.
 
-package kloneprovider
+package provider
 
 // KloneProvider is the core provider for using Klone
 type KloneProvider interface {
@@ -52,8 +52,7 @@ type Repo interface {
 
 // GitServer represents a git server (like github.com)
 type GitServer interface {
-	Authenticate(GitServerCredentials) error
-	GetCredentials() (GitServerCredentials, error)
+	Authenticate() error
 	GetServerString() string
 	GetRepos() (map[string]Repo, error)
 	GetRepo(string) (Repo, error)
@@ -64,8 +63,4 @@ type GitServer interface {
 	DeleteRepo(string) (bool, error)
 	DeleteRepoByOwner(owner, name string) (bool, error)
 	NewRepo(name, desc string) (Repo, error)
-}
-
-// GitServerCredentials represents necessary information to auth with a GitServer
-type GitServerCredentials interface {
 }

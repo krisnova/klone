@@ -24,7 +24,7 @@ package github
 
 import (
 	"github.com/google/go-github/github"
-	"github.com/kris-nova/klone/pkg/kloneprovider"
+	"github.com/kris-nova/klone/pkg/provider"
 	"strings"
 )
 
@@ -78,7 +78,7 @@ func (r *Repo) Name() string {
 func (r *Repo) Description() string {
 	return *r.impl.Description
 }
-func (r *Repo) ForkedFrom() kloneprovider.Repo {
+func (r *Repo) ForkedFrom() provider.Repo {
 	if r.forkedFrom == nil {
 		return nil
 	}

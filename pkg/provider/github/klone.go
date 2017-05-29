@@ -23,19 +23,15 @@
 package github
 
 import (
-	"github.com/kris-nova/klone/pkg/kloneprovider"
+	"github.com/kris-nova/klone/pkg/provider"
 )
 
 type KloneProvider struct {
 }
 
-func (k *KloneProvider) NewGitServer() (kloneprovider.GitServer, error) {
+func (k *KloneProvider) NewGitServer() (provider.GitServer, error) {
 	srv := &GitServer{}
-	creds, err := srv.GetCredentials()
-	if err != nil {
-		return srv, err
-	}
-	err = srv.Authenticate(creds)
+	err := srv.Authenticate()
 	if err != nil {
 		return srv, err
 	}

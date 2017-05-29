@@ -1,11 +1,11 @@
 package kloners
 
-import "github.com/kris-nova/klone/pkg/kloneprovider"
+import "github.com/kris-nova/klone/pkg/provider"
 
 type Kloner interface {
-	Clone(repo kloneprovider.Repo) (string, error)
+	Clone(repo provider.Repo) (string, error)
 	Pull(remote string) error
 	AddRemote(name, url string) error
 	DeleteRemote(name string) error
-	GetCloneDirectory(repo kloneprovider.Repo) string
+	GetCloneDirectory(repo provider.Repo) string
 }

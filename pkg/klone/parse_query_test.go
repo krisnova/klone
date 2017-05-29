@@ -2,7 +2,7 @@ package klone
 
 import (
 	"testing"
-	"github.com/kris-nova/klone/pkg/kloneprovider"
+	"github.com/kris-nova/klone/pkg/provider"
 	"os"
 	"fmt"
 	"strings"
@@ -13,7 +13,7 @@ import (
 // github.com/Nivenly/klone-e2e-unknown
 // github.com/$you/klone-e2e-query
 
-var GitServer kloneprovider.GitServer
+var GitServer provider.GitServer
 
 // TestMain will setup the e2e testing suite by creating a new (and concurrent) connection
 // to the Git provider

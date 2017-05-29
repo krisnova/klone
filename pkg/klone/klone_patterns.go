@@ -2,12 +2,13 @@ package klone
 
 import (
 	"fmt"
-	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/local"
+	"github.com/kris-nova/klone/pkg/provider"
 	"strings"
+	"time"
 )
 
-const waitForForkSeconds = 4
+const waitForForkSeconds = 10
 
 // kloneOwner is the function that is called when we will be cloning into
 // a repository where we are the owner. E.G. this is ours, and not a fork.
@@ -79,10 +80,10 @@ func (k *Kloneable) kloneTryingFork() (string, error) {
 // We will clone to the parent's location on disk, but with our origin
 func (k *Kloneable) kloneNeedsFork() (string, error) {
 	local.Printf("Forking [%s/%s] to [%s/%s]", k.repo.Owner(), k.repo.Name(), k.gitServer.OwnerName(), k.repo.Name())
-	var newRepo kloneprovider.Repo
+	var newRepo provider.Repo
 	newRepo, err := k.gitServer.Fork(k.repo, k.gitServer.OwnerName())
 	if err != nil {
-		if strings.Contains(err.Error(), "job scheduled on GitHub side") {
+		if strings.Contains(err.Error(), "job scheduled on GitHub side") || strings.Contains(err.Error(), "404 Not Found") {
 			// Forking might take a while, so poll for it
 			for i := 1; i <= waitForForkSeconds; i++ {
 				repo, err := k.gitServer.GetRepo(k.repo.Name())
@@ -94,6 +95,7 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 				if i == waitForForkSeconds {
 					return "", fmt.Errorf("unable to detect forked repository after waiting %d seconds", waitForForkSeconds)
 				}
+				time.Sleep(time.Second * 1)
 			}
 		} else {
 			return "", err

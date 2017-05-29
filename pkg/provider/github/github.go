@@ -23,19 +23,18 @@
 package github
 
 import (
-	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"context"
+	"github.com/kris-nova/klone/pkg/provider"
 	//"golang.org/x/oauth2"
-	"github.com/google/go-github/github"
-	"os"
 	"bufio"
+	"fmt"
+	"github.com/google/go-github/github"
 	"github.com/kris-nova/klone/pkg/local"
 	"golang.org/x/crypto/ssh/terminal"
-	"syscall"
 	"golang.org/x/oauth2"
+	"os"
 	"strings"
-	"fmt"
-	"github.com/kris-nova/klone/pkg/options"
+	"syscall"
 )
 
 var Cache = fmt.Sprintf("%s/.klone/auth", local.Home())
@@ -50,12 +49,12 @@ type GitServer struct {
 	username string
 	client   *github.Client
 	ctx      context.Context
-	cursor   kloneprovider.Repo
-	repos    map[string]kloneprovider.Repo
+	cursor   provider.Repo
+	repos    map[string]provider.Repo
 	usr      *github.User
 }
 
-func (s *GitServer) Fork(parent kloneprovider.Repo, newOwner string) (kloneprovider.Repo, error) {
+func (s *GitServer) Fork(parent provider.Repo, newOwner string) (provider.Repo, error) {
 	c := &github.RepositoryCreateForkOptions{}
 	// Override c.Orginzation here if we ever need one!
 	repo, _, err := s.client.Repositories.CreateFork(s.ctx, parent.Owner(), parent.Name(), c)
@@ -88,9 +87,13 @@ func (s *GitServer) OwnerEmail() string {
 // Authenticate will then attempt to log in (prompting for MFA if necessary)
 // Authenticate will then attempt to ensure a unique access token created by klone for future access
 // To ensure a new auth token, simply set the env var and klone will re-cache the new token
-func (s *GitServer) Authenticate(credentials kloneprovider.GitServerCredentials) error {
+func (s *GitServer) Authenticate() error {
+	credentials, err := s.GetCredentials()
+	if err != nil {
+		return err
+	}
 	r := bufio.NewReader(os.Stdin)
-	token := credentials.(*GitServerCredentials).Token
+	token := credentials.Token
 	s.ctx = context.Background()
 	var client *github.Client
 	var tp github.BasicAuthTransport
@@ -101,8 +104,8 @@ func (s *GitServer) Authenticate(credentials kloneprovider.GitServerCredentials)
 		tc := oauth2.NewClient(s.ctx, ts)
 		client = github.NewClient(tc)
 	} else {
-		username := credentials.(*GitServerCredentials).User
-		password := credentials.(*GitServerCredentials).Pass
+		username := credentials.User
+		password := credentials.Pass
 		local.Printf("Connecting to GitHub: [%s]", username)
 		tp = github.BasicAuthTransport{
 			Username: strings.TrimSpace(username),
@@ -134,7 +137,7 @@ func (s *GitServer) Authenticate(credentials kloneprovider.GitServerCredentials)
 }
 
 // GetRepoByOwner is the most effecient way to look up a repository exactly by it's name and owner
-func (s *GitServer) GetRepoByOwner(owner, name string) (kloneprovider.Repo, error) {
+func (s *GitServer) GetRepoByOwner(owner, name string) (provider.Repo, error) {
 	r := &Repo{}
 	repo, _, err := s.client.Repositories.Get(s.ctx, owner, name)
 	if err != nil {
@@ -153,7 +156,7 @@ func (s *GitServer) GetRepoByOwner(owner, name string) (kloneprovider.Repo, erro
 
 }
 
-func (s *GitServer) NewRepo(name, desc string) (kloneprovider.Repo, error) {
+func (s *GitServer) NewRepo(name, desc string) (provider.Repo, error) {
 	t := true
 	gitRepo := &github.Repository{}
 	gitRepo.Name = &name
@@ -188,7 +191,7 @@ func (s *GitServer) DeleteRepo(name string) (bool, error) {
 }
 
 // GetRepo is the most effecient way to look up a repository exactly by it's name and assumed owner (you)
-func (s *GitServer) GetRepo(name string) (kloneprovider.Repo, error) {
+func (s *GitServer) GetRepo(name string) (provider.Repo, error) {
 	r := &Repo{}
 	repo, _, err := s.client.Repositories.Get(s.ctx, s.username, name)
 	if err != nil {
@@ -207,8 +210,8 @@ func (s *GitServer) GetRepo(name string) (kloneprovider.Repo, error) {
 
 // GetRepos will return (and cache) a hash map of repositories by name for some
 // convenient O(n*log(n)) look up!
-func (s *GitServer) GetRepos() (map[string]kloneprovider.Repo, error) {
-	providerRepos := make(map[string]kloneprovider.Repo)
+func (s *GitServer) GetRepos() (map[string]provider.Repo, error) {
+	providerRepos := make(map[string]provider.Repo)
 	if len(s.repos) == 0 {
 		opt := &github.RepositoryListOptions{
 			ListOptions: github.ListOptions{PerPage: 100},
@@ -308,44 +311,30 @@ type GitServerCredentials struct {
 	Token string
 }
 
-// GetCredentials will look for GitHub access credentials with the following parsing logic:
-// 1. Environmental variables $KLONE_GITHUBUSER $KLONE_GITHUBPASS
-// 2. Config file ~/.klone/githubcreds
-func (s *GitServer) GetCredentials() (kloneprovider.GitServerCredentials, error) {
-	var creds GitServerCredentials
+func (s *GitServer) GetCredentials() (*GitServerCredentials, error) {
+	creds := &GitServerCredentials{}
+	var token string
+	var user string
+	var pass string
+	cachedToken := local.SGetContent(Cache)
+	if cachedToken != "" {
+		creds.Token = cachedToken
+		return creds, nil
+	} else {
+		token = local.SGetContent(Cache)
+		if token == "" {
+			os.MkdirAll(fmt.Sprintf("%s/.klone", local.Home()), 0700)
+			local.SPutContent("", Cache)
+		}
+		t := os.Getenv("KLONE_GITHUBTOKEN")
+		if t != "" {
+			// Logic here is to always overwrite with env vars in case a user changes
+			token = t
+		}
+	}
+
 	r := bufio.NewReader(os.Stdin)
 
-	// ----------------------------------------------------------------------------------------
-	// TestMode
-	if options.R.TestAuthMode {
-		if os.Getenv("TEST_KLONE_GITHUBTOKEN") != "" {
-			os.Setenv("KLONE_GITHUBTOKEN", os.Getenv("TEST_KLONE_GITHUBTOKEN"))
-		}
-		if os.Getenv("TEST_KLONE_GITHUBUSER") != "" {
-			os.Setenv("KLONE_GITHUBUSER", os.Getenv("TEST_KLONE_GITHUBUSER"))
-		}
-		if os.Getenv("TEST_KLONE_GITHUBPASS") != "" {
-			os.Setenv("KLONE_GITHUBPASS", os.Getenv("TEST_KLONE_GITHUBPASS"))
-		}
-	}
-
-	// ----------------------------------------------------------------------------------------
-	// Token
-	var token string
-	token = local.SGetContent(Cache)
-	if token == "" {
-		os.MkdirAll(fmt.Sprintf("%s/.klone", local.Home()), 0700)
-		local.SPutContent("", Cache)
-	}
-	t := os.Getenv("KLONE_GITHUBTOKEN")
-	if t != "" {
-		// Logic here is to always overwrite with env vars in case a user changes
-		token = t
-	}
-
-	// ----------------------------------------------------------------------------------------
-	// User
-	var user string
 	user = os.Getenv("KLONE_GITHUBUSER")
 	if user == "" {
 		local.PrintPrompt("GitHub Username: ")
@@ -356,9 +345,6 @@ func (s *GitServer) GetCredentials() (kloneprovider.GitServerCredentials, error)
 		user = u
 	}
 
-	// ----------------------------------------------------------------------------------------
-	// Pass
-	var pass string
 	pass = os.Getenv("KLONE_GITHUBPASS")
 	if pass == "" {
 		local.PrintPrompt("GitHub Password: ")
@@ -371,5 +357,5 @@ func (s *GitServer) GetCredentials() (kloneprovider.GitServerCredentials, error)
 	creds.Token = token
 	creds.User = user
 	creds.Pass = pass
-	return &creds, nil
+	return creds, nil
 }

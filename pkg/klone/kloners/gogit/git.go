@@ -5,8 +5,8 @@ import (
 	//"github.com/kris-nova/klone/pkg/auth"
 	"github.com/kris-nova/klone/pkg/auth"
 	"github.com/kris-nova/klone/pkg/klone/kloners"
-	"github.com/kris-nova/klone/pkg/kloneprovider"
 	"github.com/kris-nova/klone/pkg/local"
+	"github.com/kris-nova/klone/pkg/provider"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
 	"os"
@@ -14,13 +14,13 @@ import (
 )
 
 type Kloner struct {
-	gitServer kloneprovider.GitServer
+	gitServer provider.GitServer
 	r         *git.Repository
 }
 
 // This is the logic that defins a Clone() for a Go repository
 // Of course we need to check out into $GOPATH
-func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
+func (k *Kloner) Clone(repo provider.Repo) (string, error) {
 	o := &git.CloneOptions{
 		URL:               repo.GitCloneUrl(),
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
@@ -31,12 +31,12 @@ func (k *Kloner) Clone(repo kloneprovider.Repo) (string, error) {
 	r, err := git.PlainClone(path, false, o)
 	if err != nil {
 		if strings.Contains(err.Error(), "repository already exists") {
+			local.Printf("Clone: %s", err.Error())
 			r, err := git.PlainOpen(path)
 			if err != nil {
 				return "", err
 			}
 			k.r = r
-			local.Printf("Clone: %s", err.Error())
 			return path, nil
 		} else if strings.Contains(err.Error(), "unknown capability") {
 			// Todo (@kris-nova) handle capability errors better https://github.com/kris-nova/klone/issues/5
@@ -129,13 +129,13 @@ func (k *Kloner) Pull(name string) error {
 	return nil
 }
 
-func NewKloner(srv kloneprovider.GitServer) kloners.Kloner {
+func NewKloner(srv provider.GitServer) kloners.Kloner {
 	return &Kloner{
 		gitServer: srv,
 	}
 }
 
-type customPathFunc func(repo kloneprovider.Repo) string
+type customPathFunc func(repo provider.Repo) string
 
 // customPaths is a map of git owners to conversion functions
 var customPaths = map[string]customPathFunc{
@@ -144,7 +144,7 @@ var customPaths = map[string]customPathFunc{
 
 // repoToCloneDirectory will take a repository and reason about
 // where to check out the repository on your local filesystem
-func (k *Kloner) GetCloneDirectory(repo kloneprovider.Repo) string {
+func (k *Kloner) GetCloneDirectory(repo provider.Repo) string {
 	var path string
 	// Default path
 	path = fmt.Sprintf("%s/src/%s/%s/%s", Gopath(), k.gitServer.GetServerString(), repo.Owner(), repo.Name())
