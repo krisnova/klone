@@ -1,15 +1,30 @@
 PKGS=$(shell go list ./... | grep -v /vendor)
 
-
+default: compile
 compile:
 	go install .
 
-build:
+build: dep build-linux-amd64 build-darwin-amd64 build-freebsd-amd64 build-windows-amd64
+
+clean:
+	rm -rf bin/*
+
+dep:
 	dep ensure
 
+build-linux-amd64:
+	GOOS=linux GOARCH=amd64 go build -v -o bin/linux-amd64 &
+
+build-darwin-amd64:
+	GOOS=linux GOARCH=amd64 go build -v -o bin/darwin-amd64 &
+
+build-freebsd-amd64:
+	GOOS=freebsd GOARCH=amd64 go build -v -o bin/freebsd-amd64 &
+
+build-windows-amd64:
+	GOOS=windows GOARCH=amd64 go build -v -o bin/windows-amd64 &
 
 linux: shell
-
 shell:
 	docker run \
 	-w /go/src/github.com/kris-nova/klone \

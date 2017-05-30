@@ -59,4 +59,5 @@ func Execute() {
 func init() {
 	RootCmd.Flags().StringVarP(&auth.OptPrivateKey, "identity-file", "i", "~/.ssh/id_rsa", "The private key to use for a git clone operation.")
 	RootCmd.Flags().BoolVarP(&klone.RefreshCredentials, "refresh-credentials", "r", false, "Hard reset local credential cache")
+	//RootCmd.Flags().StringVarP()
 }
