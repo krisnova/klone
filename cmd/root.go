@@ -46,7 +46,10 @@ func Execute() {
 	}
 }
 
-var containerOptions = &container.Options{}
+var containerOptions = &container.Options{
+	//Command: []string{"sleep", "10"},
+	Command: []string{"/bin/bash", "echo", "bash?"},
+}
 
 func init() {
 	RootCmd.Flags().StringVarP(&auth.OptPrivateKey, "identity-file", "i", "~/.ssh/id_rsa", "The private key to use for a git clone operation.")

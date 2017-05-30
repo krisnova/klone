@@ -33,12 +33,12 @@ func PrintPrompt(msg string) {
 }
 
 func RecoverableErrorf(msg string, a ...interface{}) {
-	b := fmt.Sprintf("[•]: [Recoverable Error]:  %s", msg)
+	b := fmt.Sprintf(" • [Recoverable Error]:  %s", msg)
 	color.Cyan(b, a)
 }
 
 func RecoverableError(msg string) {
-	b := fmt.Sprintf("[•]: [Recoverable Error]:  %s", msg)
+	b := fmt.Sprintf(" • [Recoverable Error]:  %s", msg)
 	color.Cyan(b)
 }
 
@@ -47,31 +47,31 @@ func PrintStartBanner() {
 }
 
 func Print(msg string) {
-	b := fmt.Sprintf("[✔]:  %s", msg)
+	b := fmt.Sprintf(" ✔    %s", msg)
 	color.Green(b)
 }
 
 func Printf(format string, a ...interface{}) {
-	b := fmt.Sprintf("[✔]:  %s", format)
+	b := fmt.Sprintf(" ✔    %s", format)
 	color.Green(b, a...)
 }
 
 func PrintExclaimf(format string, a ...interface{}) {
-	b := fmt.Sprintf("[✸]:  %s", format)
+	b := fmt.Sprintf(" ✸    %s", format)
 	color.Cyan(b, a...)
 }
 
 func PrintExclaim(msg string) {
-	b := fmt.Sprintf("[✸]:  %s", msg)
+	b := fmt.Sprintf(" ✸    %s", msg)
 	color.Cyan(b)
 }
 
 func PrintError(err error) {
-	color.Red("[✘]:  %v", err)
+	color.Red(" ✘    %v", err)
 }
 
 func PrintErrorExit(err error) {
-	color.Red("[✘]:  %v", err)
+	color.Red(" ✘    %v", err)
 	os.Exit(1)
 }
 
