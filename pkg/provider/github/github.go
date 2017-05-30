@@ -100,16 +100,17 @@ func (s *GitServer) Authenticate() error {
 	s.ctx = context.Background()
 	var client *github.Client
 	var tp github.BasicAuthTransport
-	if credentials.Token != "" && !RefreshCredentials && !Testing {
+	if credentials.Token != "" && !RefreshCredentials {
+		local.Printf("Auth [token]")
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)
 		tc := oauth2.NewClient(s.ctx, ts)
 		client = github.NewClient(tc)
 	} else {
+		local.Printf("Auth [user/pass]")
 		username := credentials.User
 		password := credentials.Pass
-		local.Printf("Connecting to GitHub: [%s]", username)
 		tp = github.BasicAuthTransport{
 			Username: strings.TrimSpace(username),
 			Password: strings.TrimSpace(password),
