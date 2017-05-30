@@ -100,7 +100,7 @@ func (s *GitServer) Authenticate() error {
 	s.ctx = context.Background()
 	var client *github.Client
 	var tp github.BasicAuthTransport
-	if credentials.Token != "" && !RefreshCredentials {
+	if credentials.Token != "" && !RefreshCredentials && !Testing {
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)
