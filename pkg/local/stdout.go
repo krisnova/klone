@@ -28,8 +28,6 @@ import (
 	"os"
 )
 
-const Version = "1.0.0"
-
 func PrintPrompt(msg string) {
 	color.Blue(msg)
 }

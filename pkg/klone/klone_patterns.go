@@ -131,7 +131,6 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 	}
 
 	// Pull
-	local.Printf("Pull [upstream]")
 	err = k.kloner.Pull("upstream")
 	if err != nil {
 		return path, err
