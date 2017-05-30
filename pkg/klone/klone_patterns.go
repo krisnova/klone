@@ -8,7 +8,10 @@ import (
 	"time"
 )
 
-const waitForForkSeconds = 10
+const (
+	waitForForkSeconds = 10
+	addRemoteAttempts  = 3
+)
 
 // kloneOwner is the function that is called when we will be cloning into
 // a repository where we are the owner. E.G. this is ours, and not a fork.
@@ -26,7 +29,7 @@ func (k *Kloneable) kloneOwner() (string, error) {
 	}
 	// Add Origin
 	// Origin is our remote URL, and location is ours too!
-	err = k.kloner.AddRemote("origin", k.repo.GitRemoteUrl())
+	err = k.attemptAddRemote("upstream", k.repo.GitRemoteUrl())
 	if err != nil {
 		return path, err
 	}
@@ -58,7 +61,7 @@ func (k *Kloneable) kloneAlreadyForked() (string, error) {
 		return path, err
 	}
 	// Upstream is their remote URL, and their location on disk
-	err = k.kloner.AddRemote("upstream", k.repo.ForkedFrom().GitRemoteUrl())
+	err = k.attemptAddRemote("upstream", k.repo.ForkedFrom().GitRemoteUrl())
 	if err != nil {
 		return path, err
 	}
@@ -114,7 +117,7 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 		return path, err
 	}
 	// Add origin
-	err = k.kloner.AddRemote("origin", newRepo.GitRemoteUrl())
+	err = k.attemptAddRemote("origin", newRepo.GitRemoteUrl())
 	if err != nil {
 		return path, err
 	}
@@ -125,7 +128,7 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 	if err != nil && !strings.Contains(err.Error(), "remote not found") {
 		return path, err
 	}
-	err = k.kloner.AddRemote("upstream", k.repo.GitRemoteUrl())
+	err = k.attemptAddRemote("upstream", k.repo.GitRemoteUrl())
 	if err != nil {
 		return path, err
 	}
@@ -137,4 +140,16 @@ func (k *Kloneable) kloneNeedsFork() (string, error) {
 	}
 
 	return path, nil
+}
+
+func (k *Kloneable) attemptAddRemote(remote, url string) error {
+	var err error
+	for i := 0; i < addRemoteAttempts; i++ {
+		err = k.kloner.AddRemote("upstream", k.repo.GitRemoteUrl())
+		if err != nil {
+			continue
+		}
+		return nil
+	}
+	return err
 }
