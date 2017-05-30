@@ -23,13 +23,12 @@
 package github
 
 import (
-	"context"
-	"github.com/kris-nova/klone/pkg/provider"
-	//"golang.org/x/oauth2"
 	"bufio"
+	"context"
 	"fmt"
 	"github.com/google/go-github/github"
 	"github.com/kris-nova/klone/pkg/local"
+	"github.com/kris-nova/klone/pkg/provider"
 	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/oauth2"
 	"os"
@@ -37,7 +36,11 @@ import (
 	"syscall"
 )
 
-var Cache = fmt.Sprintf("%s/.klone/auth", local.Home())
+var (
+	Cache              = fmt.Sprintf("%s/.klone/auth", local.Home())
+	RefreshCredentials = false
+	Testing            = false
+)
 
 const (
 	AccessTokenNote = "Access token automatically managed my Klone. More information: https://github.com/kris-nova/klone."
@@ -88,7 +91,7 @@ func (s *GitServer) OwnerEmail() string {
 // Authenticate will then attempt to ensure a unique access token created by klone for future access
 // To ensure a new auth token, simply set the env var and klone will re-cache the new token
 func (s *GitServer) Authenticate() error {
-	credentials, err := s.GetCredentials()
+	credentials, err := s.getCredentials()
 	if err != nil {
 		return err
 	}
@@ -97,7 +100,7 @@ func (s *GitServer) Authenticate() error {
 	s.ctx = context.Background()
 	var client *github.Client
 	var tp github.BasicAuthTransport
-	if token != "" {
+	if credentials.Token != "" && !RefreshCredentials {
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)
@@ -129,10 +132,13 @@ func (s *GitServer) Authenticate() error {
 	} else if err != nil {
 		return err
 	}
+	if RefreshCredentials {
+		s.refreshToken()
+	}
 	name := *s.usr.Login
 	s.username = name
 	local.Printf("Successfully authenticated [%s]", name)
-	s.ensureLocalAuthToken(token)
+	//s.ensureLocalAuthToken(token)
 	return nil
 }
 
@@ -245,117 +251,120 @@ func (s *GitServer) GetRepos() (map[string]provider.Repo, error) {
 	return s.repos, nil
 }
 
-// ensureLocalAuthToken is the cache for GitHub tokens. This function
-// should handle caching a working token (if necessary) to use in the future.
-func (s *GitServer) ensureLocalAuthToken(token string) {
-	authStr := local.SGetContent(Cache)
-	if authStr == "" {
-		// We have no cache
-		req := github.AuthorizationRequest{}
-		note := AccessTokenNote
-		req.Note = &note
-		var auth *github.Authorization
-		auth, resp, err := s.client.Authorizations.Create(s.ctx, &req)
-		if resp.StatusCode == 422 && strings.Contains(err.Error(), "Code:already_exists") {
-			// It already exists let's delete and create a new one
-			auths, _, err := s.client.Authorizations.List(s.ctx, nil)
-			if err != nil {
-				local.RecoverableErrorf("Unable to delete existing auth token [%s]: %v", *auth.ID, err)
-				return
-			}
-			for _, a := range auths {
-				n := *a.Note
-				if n == AccessTokenNote {
-					_, err := s.client.Authorizations.Delete(s.ctx, *a.ID)
-					if err != nil {
-						local.RecoverableErrorf("Unable to delete existing auth token [%s]: %v", *auth.ID, err)
-						return
-					}
-					auth, _, err = s.client.Authorizations.Create(s.ctx, &req)
-					if err != nil {
-						local.RecoverableErrorf("Unable to delete existing auth token [%s]: %v", *auth.ID, err)
-						return
-					}
-					break
+func (s *GitServer) refreshToken() {
+	req := github.AuthorizationRequest{}
+	note := AccessTokenNote
+	req.Note = &note
+	var scopes []github.Scope
+	scopes = append(scopes, github.ScopeDeleteRepo)
+	scopes = append(scopes, github.ScopeRepo)
+	scopes = append(scopes, github.ScopeUser)
+	req.Scopes = scopes
+	var auth *github.Authorization
+	auth, resp, err := s.client.Authorizations.Create(s.ctx, &req)
+	if resp.StatusCode == 422 && strings.Contains(err.Error(), "Code:already_exists") {
+		// It already exists let's delete and create a new one
+		auths, _, err := s.client.Authorizations.List(s.ctx, nil)
+		if err != nil {
+			local.RecoverableErrorf("Unable to delete existing auth token [%s]: %v", *auth.ID, err)
+			return
+		}
+		for _, a := range auths {
+			n := *a.Note
+			if n == AccessTokenNote {
+				_, err := s.client.Authorizations.Delete(s.ctx, *a.ID)
+				if err != nil {
+					local.RecoverableErrorf("Unable to delete existing auth token [%s]: %v", *auth.ID, err)
+					return
 				}
+				auth, _, err = s.client.Authorizations.Create(s.ctx, &req)
+				if err != nil {
+					local.RecoverableErrorf("Unable to create new auth token [%s]: %v", *auth.ID, err)
+					return
+				}
+				break
 			}
-		} else if err != nil {
-			local.RecoverableErrorf("Unable to ensure local auth token: %v", err)
-			return
 		}
-		str := *auth.Token
-		err = local.SPutContent(str, Cache)
-		if err != nil {
-			local.RecoverableErrorf("Unable to ensure local auth token: %v", err)
-			return
-		}
-		local.Printf("Successfully cached access token!")
-	} else if authStr != token && s.usr != nil {
-		// We have a cache but it conflicts.
-		// Check if we have conflicting tokens, but were able to auth
-		// If so we probably have a new token, so let's overwrite
-		local.Printf("Overwriting existing token with new token")
-		err := local.SPutContent(token, Cache)
-		if err != nil {
-			local.RecoverableErrorf("Unable to ensure local auth token: %v", err)
-			return
-		}
-		local.Printf("Successfully cached access token!")
+	} else if err != nil {
+		local.RecoverableErrorf("Unable to generate new auth token: %v", err)
+		return
 	}
+	str := *auth.Token
+	err = local.SPutContent(str, Cache)
+	if err != nil {
+		local.RecoverableErrorf("Unable to ensure local auth token: %v", err)
+		return
+	}
+	os.Setenv("KLONE_GITHUBTOKEN", str)
+	RefreshCredentials = false
+	local.Printf("Successfully cached access token!")
 }
 
-// GitServerCredentials are how we log into GitHub.com
-type GitServerCredentials struct {
+// GitHubCredentials are how we log into GitHub.com
+type GitHubCredentials struct {
 	User  string
 	Pass  string
 	Token string
 }
 
-func (s *GitServer) GetCredentials() (*GitServerCredentials, error) {
-	creds := &GitServerCredentials{}
+var creds *GitHubCredentials
+
+func (s *GitServer) getCredentials() (*GitHubCredentials, error) {
+	if creds != nil {
+		return creds, nil
+	}
+	creds = &GitHubCredentials{}
 	var token string
 	var user string
 	var pass string
+
+	setToken := os.Getenv("KLONE_GITHUBTOKEN")
 	cachedToken := local.SGetContent(Cache)
-	if cachedToken != "" {
-		creds.Token = cachedToken
-		return creds, nil
-	} else {
-		token = local.SGetContent(Cache)
-		if token == "" {
-			os.MkdirAll(fmt.Sprintf("%s/.klone", local.Home()), 0700)
-			local.SPutContent("", Cache)
-		}
-		t := os.Getenv("KLONE_GITHUBTOKEN")
-		if t != "" {
-			// Logic here is to always overwrite with env vars in case a user changes
-			token = t
+
+	// We have a token in memory, this always wins
+	if !RefreshCredentials {
+		fmt.Println(".")
+		if setToken != "" {
+			token = setToken
+			if setToken != cachedToken {
+				// Override cache
+				local.RecoverableError("Conflicting tokens, default to token in memory.")
+				os.MkdirAll(fmt.Sprintf("%s/.klone", local.Home()), 0700)
+				local.SPutContent(token, Cache)
+			}
+
+		} else if cachedToken != "" {
+			os.Setenv("KLONE_GITHUBTOKEN", cachedToken)
+			token = cachedToken
+		} else if !Testing {
+			// We need a new token
+			RefreshCredentials = true
 		}
 	}
 
-	r := bufio.NewReader(os.Stdin)
-
-	user = os.Getenv("KLONE_GITHUBUSER")
-	if user == "" {
-		local.PrintPrompt("GitHub Username: ")
-		u, err := r.ReadString('\n')
-		if err != nil {
-			return creds, err
+	if token == "" {
+		r := bufio.NewReader(os.Stdin)
+		user = os.Getenv("KLONE_GITHUBUSER")
+		if user == "" || RefreshCredentials {
+			local.PrintPrompt("GitHub Username: ")
+			u, err := r.ReadString('\n')
+			if err != nil {
+				return creds, err
+			}
+			user = strings.TrimSpace(u)
 		}
-		user = u
+		pass = os.Getenv("KLONE_GITHUBPASS")
+		if pass == "" || RefreshCredentials {
+			local.PrintPrompt("GitHub Password: ")
+			bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+			p := string(bytePassword)
+			pass = strings.TrimSpace(p)
+		}
 	}
 
-	pass = os.Getenv("KLONE_GITHUBPASS")
-	if pass == "" {
-		local.PrintPrompt("GitHub Password: ")
-		bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
-		p := string(bytePassword)
-		pass = p
-	}
-
-	// Final step, build creds
 	creds.Token = token
 	creds.User = user
 	creds.Pass = pass
+
 	return creds, nil
 }

@@ -39,6 +39,17 @@ Klone will prompt you the first time you use the program for needed credentials.
 On a first run klone will cache local configuration to `~/.klone/auth` after it creates a token via the API.
 Klone will *never* store your passwords in plaintext.
 
+# Testing
+
+Export `TEST_KLONE_GITHUBUSER` and `TEST_KLONE_GITHUBPASS` with a GitHub user/pass for a test account.
+I use handy dandy @knovabot for my testing.
+
+Run the test suite
+
+```
+make test
+```
+
 # Environmental variables
 
 | Variable                              | Behaviour                                              |

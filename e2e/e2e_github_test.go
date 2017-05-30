@@ -6,8 +6,8 @@ import (
 	"github.com/kris-nova/klone/pkg/klone"
 	"github.com/kris-nova/klone/pkg/klone/kloners/gogit"
 	"github.com/kris-nova/klone/pkg/local"
-	"github.com/kris-nova/klone/pkg/options"
 	"github.com/kris-nova/klone/pkg/provider"
+	"github.com/kris-nova/klone/pkg/provider/github"
 	"gopkg.in/src-d/go-git.v4"
 	"os"
 	"strings"
@@ -29,7 +29,7 @@ func TestMain(m *testing.M) {
 	if os.Getenv("TEST_KLONE_GITHUBPASS") != "" {
 		os.Setenv("KLONE_GITHUBPASS", os.Getenv("TEST_KLONE_GITHUBPASS"))
 	}
-	options.R.TestAuthMode = true // Enable test mode auth
+	github.Testing = true
 	provider := klone.NewGithubProvider()
 	gitServer, err := provider.NewGitServer()
 	if err != nil {

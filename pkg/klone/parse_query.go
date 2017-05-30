@@ -1,9 +1,9 @@
 package klone
 
 import (
+	"github.com/kris-nova/klone/pkg/local"
 	"github.com/kris-nova/klone/pkg/provider"
 	"strings"
-	"github.com/kris-nova/klone/pkg/local"
 )
 
 type QueryInformation struct {

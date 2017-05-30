@@ -1,11 +1,11 @@
 package klone
 
 import (
-	"testing"
+	"fmt"
 	"github.com/kris-nova/klone/pkg/provider"
 	"os"
-	"fmt"
 	"strings"
+	"testing"
 )
 
 // Repositories we know we can test with
@@ -96,7 +96,7 @@ func TestParseQueryDoubleGithub(t *testing.T) {
 	if q.repoName != "klone-e2e-query" {
 		t.Fatal("Unable to detect repo name for double query")
 	}
-	if q.repoOwner != GitServer.OwnerName() {
+	if q.repoOwner != "kris-nova" {
 		t.Fatal("Unable to match owner for double query")
 	}
 }
@@ -114,7 +114,7 @@ func TestParseQueryTripleGithub(t *testing.T) {
 	if q.repoName != "klone-e2e-query" {
 		t.Fatal("Unable to detect repo name for triple query")
 	}
-	if q.repoOwner != GitServer.OwnerName() {
+	if q.repoOwner != "kris-nova" {
 		t.Fatal("Unable to match owner for triple query")
 	}
 }

@@ -28,7 +28,10 @@ import (
 	"github.com/kris-nova/klone/pkg/provider/github"
 )
 
+var RefreshCredentials = false
+
 func NewGithubProvider() provider.KloneProvider {
 	var kloner *github.KloneProvider
+	github.RefreshCredentials = RefreshCredentials
 	return kloner
 }
