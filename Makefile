@@ -2,7 +2,7 @@ PKGS=$(shell go list ./... | grep -v /vendor)
 
 default: compile
 compile:
-	go install .
+	@go install .
 
 build: dep build-linux-amd64 build-darwin-amd64 build-freebsd-amd64 build-windows-amd64
 
