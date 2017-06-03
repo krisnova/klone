@@ -4,19 +4,16 @@ default: compile
 compile:
 	go install .
 
-build: dep build-linux-amd64 build-darwin-amd64 build-freebsd-amd64 build-windows-amd64
+build: clean build-linux-amd64 build-darwin-amd64 build-freebsd-amd64 build-windows-amd64
 
 clean:
 	rm -rf bin/*
-
-dep:
-	dep ensure
 
 build-linux-amd64:
 	GOOS=linux GOARCH=amd64 go build -v -o bin/linux-amd64 &
 
 build-darwin-amd64:
-	GOOS=linux GOARCH=amd64 go build -v -o bin/darwin-amd64 &
+	GOOS=darwin GOARCH=amd64 go build -v -o bin/darwin-amd64 &
 
 build-freebsd-amd64:
 	GOOS=freebsd GOARCH=amd64 go build -v -o bin/freebsd-amd64 &
@@ -27,6 +24,7 @@ build-windows-amd64:
 linux: shell
 shell:
 	docker run \
+	-i -t \
 	-w /go/src/github.com/kris-nova/klone \
 	-v ${GOPATH}/src/github.com/kris-nova/klone:/go/src/github.com/kris-nova/klone \
 	-v ${HOME}/.ssh:/root/.ssh \
@@ -36,7 +34,7 @@ shell:
 	-e KLONE_GITHUBTOKEN=${KLONE_GITHUBTOKEN} \
 	-e KLONE_GITHUBUSER=${KLONE_GITHUBUSER} \
 	-e KLONE_GITHUBPASS=${KLONE_GITHUBPASS} \
-    --rm golang:1.8.1
+    --rm golang:1.8.1 /bin/bash
 
 test:
 	@go test $(PKGS)
