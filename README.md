@@ -1,12 +1,14 @@
+# About
+
+`klone` is a command line tool that makes it easy to start working with a git repository.
+
+`klone` can can check out an arbitrary github repository and run it in any container you like.
+
 <p align="center">
   <img src="doc/img/docker.png"> </image>
 </p>
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/kris-nova/klone)](https://goreportcard.com/report/github.com/kris-nova/klone)
-
-# About
-
-`klone` is a command line tool that makes it easy to start working with a git repository.
 
 # Installing
 
