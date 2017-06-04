@@ -22,8 +22,6 @@
 # BOOTSTRAP.sh will bootstrap and run klone on any system
 # Usage: BOOTSTRAP.sh <query> <bash:command>
 
-mv /tmp/klone ~/.klone
-
 if [ -z "$1" ]; then
     echo "Usage: BOOTSTRAP.sh <query> <command>"
     exit 1
@@ -40,7 +38,7 @@ exists() {
 }
 
 HACK="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-VERSION=$(cat ~/.klone/version)
+VERSION=$(cat "${HACK}/../pkg/local/version.go" | grep Version | cut -d '"' -f 2)
 
 
 DOWNLOAD_URL="https://github.com/kris-nova/klone/releases/download/v1.1.1/linux-amd64"

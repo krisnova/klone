@@ -65,6 +65,7 @@ func init() {
 }
 
 func runKlone(cmd *cobra.Command, args []string) {
+	local.SPutContent(local.Version, fmt.Sprintf("%s/.klone/version", local.Home()))
 	query := args[0]
 	if containerOptions.Image != "" {
 		containerOptions.Query = query
