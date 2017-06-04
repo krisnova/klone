@@ -44,31 +44,31 @@ INSTALL_DIR="/usr/local/bin"
 BIN_NAME="darwin-amd64"
 
 if [[ "$(uname)" == "Darwin" ]]; then
-    echo "Darwin"
+    echo "[klone]:  Detected arch [darwin]"
     BIN_NAME="darwin-amd64"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-   echo "Linux"
+   echo "[klone]:  Detected arch [linux]"
    BIN_NAME="linux-amd64"
 elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
-    echo "Win64"
+   echo "[klone]:  Detected arch [win64]"
     https://github.com/kris-nova/klone/releases/download/v${VERSION}/windows-amd64
     BIN_NAME="windows-amd64"
 fi
 DOWNLOAD_URL="https://github.com/kris-nova/klone/releases/download/v${VERSION}/${BIN_NAME}"
 
 if exists wget; then
-    echo "Exists [wget]"
+    echo "[klone]:  Command exists [wget]"
 else
-    echo "Downloading wget"
+    echo "[klone]:  Downloading [wget]"
 
     # --------------------------- apt-get ---------------------------
     if exists apt-get; then
-        apt-get update
-        apt-get install -y wget
+        apt-get update  &> /dev/null
+        apt-get install -y wget  &> /dev/null
     fi
 
     if exists yum; then
-        yum install -y wget
+        yum install -y wget  &> /dev/null
     fi
 
     # --------------------------- yum ---------------------------
@@ -77,16 +77,17 @@ else
 fi
 
 if exists klone; then
-    echo "Exists [klone]"
+    echo "[klone]:  Command exists [klone]"
 else
-    echo "Downloading klone"
+    echo "[klone]:  Downloading [klone]"
     # assume wget
-    wget $DOWNLOAD_URL
+    wget $DOWNLOAD_URL &> /dev/null
     chmod +x $BIN_NAME
     mv $BIN_NAME $INSTALL_DIR/klone
     PATH=$PATH:$INSTALL_DIR
 fi
 
+cd ~
 klone ${QUERY}
 if [ -n "$CMD" ]; then
     eval ${CMD}

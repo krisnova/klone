@@ -61,3 +61,11 @@ make test
 |TEST_KLONE_GITHUBTOKEN                 | (Testing) GitHub acccess token to use with GitHub.com  |
 |TEST_KLONE_GITHUBUSER                  | (Testing) GitHub user name to authenticate with        |
 |TEST_KLONE_GITHUBPASS                  | (Testing) GitHub password to authenticate with         |
+
+# Passing environmental variables to containers
+
+By default klone will automatically pass ALL environmental variables that begin with the prefix "KLONE_CONTAINER_" and will pass the variable WITHOUT the prefix.
+
+For example setting `KLONE_CONTAINER_GOPATH=/my/gopath` will pass `GOPATH=/my/gopath` to the container.
+
+Environmental variables cannot be passed in as command line flags.

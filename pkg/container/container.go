@@ -21,14 +21,12 @@ type Options struct {
 }
 
 func Run(o *Options) error {
-
 	o.init()
 	err := ensureBootstrapFileLocal()
 	if err != nil {
 		return fmt.Errorf("Unable to ensure local bootstrap file: %v", err)
 	}
-
-	local.Printf("Container: %s", o.name)
+	local.Printf("Running in container [%s]", o.Image)
 	cli := command.NewDockerCli(os.Stdin, os.Stdout, os.Stderr)
 	opts := &cliflags.ClientOptions{
 		Common: &cliflags.CommonOptions{},
@@ -37,6 +35,20 @@ func Run(o *Options) error {
 	cobra := container.NewRunCommand(cli)
 
 	// Todo (@kris-nova) I have opinions and here they are. Let people have their own opinions. (Make this configurable)
+
+	// ----- env vars
+	for _, e := range os.Environ() {
+		spl := strings.Split(e, "=")
+		k := spl[0]
+		v := spl[1]
+		if strings.HasPrefix(k, "KLONE_CONTAINER_") {
+			newspl := strings.Split(k, "_")
+			newk := newspl[len(newspl)-1]
+			cobra.Flags().Set("env", fmt.Sprintf("%s=%s", newk, v))
+			local.Printf("Passing to container $%s='%s'", newk, v)
+		}
+	}
+
 	cobra.Flags().Set("name", o.name)
 	cobra.Flags().Set("rm", "1")
 	cobra.Flags().Set("interactive", "1")
@@ -78,7 +90,7 @@ func ensureBootstrapFileLocal() error {
 		wd = ""
 	}
 	if _, err := os.Stat(fmt.Sprintf("%s/hack", wd)); err == nil {
-		local.PrintExclaimf("Found local hack directory")
+		local.PrintExclaimf("Found local hack directory for container bootstrap")
 		localBootstrapFile := fmt.Sprintf("%s/hack/BOOTSTRAP.sh", wd)
 		local.SPutContent(local.Version, fmt.Sprintf("%s/hack/version", wd))
 		local.SPutContent(local.SGetContent(fmt.Sprintf("%s/.klone/auth", local.Home())), fmt.Sprintf("%s/hack/auth", wd))
