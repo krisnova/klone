@@ -48,8 +48,8 @@ After a `klone` you should have the following `git remote -v` configuration
 
 | Remote        | URL                                         |
 | ------------- | ------------------------------------------- |
-| origin        | git@github.com:$you/$repo                 |
-| upstream      | git@github.com:$them/$repo                |
+| origin        | git@github.com:`$you`/`$repo`               |
+| upstream      | git@github.com:`$them`/`$repo`              |
 
 
 # GitHub Credentials
