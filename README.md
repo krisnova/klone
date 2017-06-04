@@ -24,6 +24,8 @@ Will use `docker` to checkout the `github.com/docker/docker` repository on a `go
 
 `klone` will run itself inside the container and use the exact same logic it would use if running locally (which is described below).
 
+A full walkthrough of using `klone` with [golang/dep](https://github.com/golang/dep) can be found [here](doc/dep-example.md).
+
 # Example (local)
 
 ```bash
