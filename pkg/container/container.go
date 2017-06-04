@@ -62,7 +62,7 @@ func Run(o *Options) error {
 
 	// Bootstrap command
 	o.Command = append([]string{"bash", "/tmp/klone/BOOTSTRAP.sh", o.Query}, o.Command...)
-	err = cobra.RunE(cobra, append([]string{o.name}, o.Command...))
+	err = cobra.RunE(cobra, append([]string{o.Image}, o.Command...))
 	if err != nil {
 		return err
 	}
@@ -74,11 +74,22 @@ func (o *Options) init() {
 		spl := strings.Split(o.Image, ":")
 		if len(spl) > 1 {
 			o.name = spl[0]
-			return
 		}
 
 	}
-	o.name = o.Image
+	if strings.Contains(o.Image, "/") {
+		spl := strings.Split(o.Image, "/")
+		if len(spl) > 1 {
+			o.name = spl[0]
+		}
+
+	}
+	if o.name == "" {
+		o.name = o.Image
+	}
+	o.name = strings.Replace(o.name, "/", "", -1)
+	o.name = strings.Replace(o.name, ":", "", -1)
+	o.name = strings.Replace(o.name, "_", "", -1)
 }
 
 var bootstrapFile = fmt.Sprintf("%s/.klone/BOOTSTRAP.sh", local.Home())

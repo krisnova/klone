@@ -59,20 +59,27 @@ DOWNLOAD_URL="https://github.com/kris-nova/klone/releases/download/v${VERSION}/$
 if exists wget; then
     echo "[klone]:  Command exists [wget]"
 else
-    echo "[klone]:  Downloading [wget]"
+
 
     # --------------------------- apt-get ---------------------------
     if exists apt-get; then
+        echo "[klone]:  Downloading [wget]"
         apt-get update  &> /dev/null
         apt-get install -y wget  &> /dev/null
     fi
 
+    # --------------------------- yum ---------------------------
     if exists yum; then
+        echo "[klone]:  Downloading [wget]"
         yum install -y wget  &> /dev/null
     fi
 
-    # --------------------------- yum ---------------------------
-
+    # --------------------------- pacman ---------------------------
+    if exists pacman; then
+        echo "[klone]:  Downloading [wget]"
+        pacman -Syy
+        pacman -S --noconfirm wget
+    fi
 
 fi
 
