@@ -68,6 +68,18 @@ var bootstrapFile = fmt.Sprintf("%s/.klone/BOOTSTRAP.sh", local.Home())
 var remoteBootstrapFileUrl = "https://raw.githubusercontent.com/kris-nova/klone/master/hack/BOOTSTRAP.sh"
 
 func ensureBootstrapFileLocal() error {
+	wd, err := os.Getwd()
+	if err != nil {
+		wd = ""
+	}
+	if _, err := os.Stat(fmt.Sprintf("%s/hack", wd)); err == nil {
+		local.PrintExclaimf("Found local hack directory")
+		localBootstrapFile := fmt.Sprintf("%s/hack/BOOTSTRAP.sh", wd)
+		local.SPutContent(local.Version, fmt.Sprintf("%s/hack/version", wd))
+		bootstrapFile = localBootstrapFile
+		return nil
+	}
+
 	r, err := http.Get(remoteBootstrapFileUrl)
 	if err != nil {
 		return err

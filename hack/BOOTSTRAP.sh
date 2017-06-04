@@ -39,7 +39,6 @@ exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-HACK="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 VERSION=$(cat ~/.klone/version)
 
 
@@ -47,7 +46,7 @@ DOWNLOAD_URL="https://github.com/kris-nova/klone/releases/download/v1.1.1/linux-
 INSTALL_DIR="/usr/local/bin"
 BIN_NAME="darwin-amd64"
 
-if [ "$(uname)" == "Darwin" ]; then
+if [[ "$(uname)" == "Darwin" ]]; then
     echo "Darwin"
     BIN_NAME="darwin-amd64"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
@@ -60,8 +59,24 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
 fi
 DOWNLOAD_URL="https://github.com/kris-nova/klone/releases/download/v${VERSION}/${BIN_NAME}"
 
+if exists wget; then
+    echo "Exists [wget]"
+else
+    echo "Downloading wget"
+
+    # --------------------------- apt-get ---------------------------
+    if exists apt-get; then
+        apt-get update
+        apt-get install -y wget
+    fi
+
+    # --------------------------- yum ---------------------------
+
+
+fi
+
 if exists klone; then
-    echo "Exists"
+    echo "Exists [klone]"
 else
     echo "Downloading klone"
     # assume wget
