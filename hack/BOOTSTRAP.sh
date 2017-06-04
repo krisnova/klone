@@ -44,16 +44,31 @@ INSTALL_DIR="/usr/local/bin"
 BIN_NAME="darwin-amd64"
 
 if [[ "$(uname)" == "Darwin" ]]; then
+
+
+    # --------------------------- darwin ---------------------------
     echo "[klone]:  Detected architecture [darwin]"
     BIN_NAME="darwin-amd64"
+
+
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-   echo "[klone]:  Detected architecture [linux]"
-   BIN_NAME="linux-amd64"
+
+
+    # --------------------------- linux ---------------------------
+    echo "[klone]:  Detected architecture [linux]"
+    BIN_NAME="linux-amd64"
+
 elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
-   echo "[klone]:  Detected architecture [win64]"
+
+
+    # --------------------------- win64 ---------------------------
+    echo "[klone]:  Detected architecture [win64]"
     https://github.com/kris-nova/klone/releases/download/v${VERSION}/windows-amd64
     BIN_NAME="windows-amd64"
+
 fi
+
+
 DOWNLOAD_URL="https://github.com/kris-nova/klone/releases/download/v${VERSION}/${BIN_NAME}"
 
 if exists wget; then
@@ -63,20 +78,20 @@ else
 
     # --------------------------- apt-get ---------------------------
     if exists apt-get; then
-        echo "[klone]:  Downloading [wget]"
+        echo "[klone]:  Downloading [wget] [apt-get]"
         apt-get update  &> /dev/null
         apt-get install -y wget  &> /dev/null
     fi
 
     # --------------------------- yum ---------------------------
     if exists yum; then
-        echo "[klone]:  Downloading [wget]"
+        echo "[klone]:  Downloading [wget] [yum]"
         yum install -y wget  &> /dev/null
     fi
 
     # --------------------------- pacman ---------------------------
     if exists pacman; then
-        echo "[klone]:  Downloading [wget]"
+        echo "[klone]:  Downloading [wget] [pacman]"
         pacman -Syy
         pacman -S --noconfirm wget
     fi

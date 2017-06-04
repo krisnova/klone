@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/docker/cli/cli/command"
 	"github.com/docker/cli/cli/command/container"
+	"github.com/docker/cli/cli/command/image"
 	cliflags "github.com/docker/cli/cli/flags"
 	"github.com/google/uuid"
 	"github.com/kris-nova/klone/pkg/local"
@@ -15,11 +16,13 @@ import (
 )
 
 type Options struct {
-	Query   string
-	Image   string
-	root    string
-	name    string
-	Command []string
+	Query      string
+	Image      string
+	Command    []string
+	SaveString string
+
+	root string
+	name string
 }
 
 func Run(o *Options) error {
@@ -36,8 +39,6 @@ func Run(o *Options) error {
 	cli.Initialize(opts)
 	cobra := container.NewRunCommand(cli)
 
-	// Todo (@kris-nova) I have opinions and here they are. Let people have their own opinions. (Make this configurable)
-
 	// ----- env vars
 	for _, e := range os.Environ() {
 		spl := strings.Split(e, "=")
@@ -51,8 +52,8 @@ func Run(o *Options) error {
 		}
 	}
 
+	// Todo (@kris-nova) I have opinions and here they are. Let people have their own opinions. (Make this configurable)
 	cobra.Flags().Set("name", o.name)
-	cobra.Flags().Set("rm", "1")
 	cobra.Flags().Set("interactive", "1")
 	cobra.Flags().Set("tty", "1")
 
@@ -62,9 +63,28 @@ func Run(o *Options) error {
 	// Bootstrap ~/.ssh
 	cobra.Flags().Set("volume", fmt.Sprintf("%s/.ssh:/root/.ssh", local.Home()))
 
-	// Bootstrap command
 	o.Command = append([]string{"bash", "/tmp/klone/BOOTSTRAP.sh", o.Query}, o.Command...)
+
 	err = cobra.RunE(cobra, append([]string{o.Image}, o.Command...))
+	if err != nil {
+		return err
+	}
+
+	if o.SaveString != "" {
+		// This means we want to build and push the image to a registry
+		err := o.save(cli)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *Options) save(cli *command.DockerCli) error {
+	local.Printf("Saving with string [%s]", o.SaveString)
+	push := image.NewPushCommand(cli)
+	err := push.RunE(push, []string{o.name, "latest"})
 	if err != nil {
 		return err
 	}

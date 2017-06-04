@@ -58,7 +58,8 @@ func init() {
 	RootCmd.Flags().StringVarP(&auth.OptPrivateKey, "identity-file", "i", "~/.ssh/id_rsa", "The private key to use for a git clone operation.")
 	RootCmd.Flags().BoolVarP(&klone.RefreshCredentials, "refresh-credentials", "r", false, "Hard reset local credential cache")
 	RootCmd.Flags().StringVarP(&containerOptions.Image, "container", "c", "", "Run the klone in a container, and use the image string defined")
-	RootCmd.Flags().StringSliceVarP(&containerOptions.Command, "container-command", "x", []string{"/bin/bash"}, "The command to run in the container that we are kloning into.")
+	RootCmd.Flags().StringSliceVarP(&containerOptions.Command, "container-command", "x", []string{"/bin/bash"}, "The command to run in the container that we are kloning into")
+	RootCmd.Flags().StringVarP(&containerOptions.SaveString, "save", "s", "", "The string to use to identify your klone container. (Used as a docker registry repository name)")
 	RootCmd.Flags().BoolVarP(&bypassBanner, "bypass-banner", "B", false, "Bypass displaying the banner")
 	RootCmd.SetUsageTemplate(UsageTemplate)
 	if len(os.Args) <= 1 {
