@@ -45,7 +45,7 @@ func Run(o *Options) error {
 			newspl := strings.Split(k, "_")
 			newk := newspl[len(newspl)-1]
 			cobra.Flags().Set("env", fmt.Sprintf("%s=%s", newk, v))
-			local.Printf("Passing to container $%s='%s'", newk, v)
+			local.Printf("Passing variable to container $%s='%s'", newk, v)
 		}
 	}
 
