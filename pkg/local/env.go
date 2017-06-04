@@ -7,7 +7,7 @@ import (
 )
 
 func Home() string {
-	home = os.Getenv("HOME")
+	home := os.Getenv("HOME")
 	if strings.Contains(home, "root") {
 		return "/root"
 	}
