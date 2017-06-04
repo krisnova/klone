@@ -40,9 +40,6 @@ exists() {
 }
 
 VERSION=$(cat ~/.klone/version)
-
-
-DOWNLOAD_URL="https://github.com/kris-nova/klone/releases/download/v1.1.1/linux-amd64"
 INSTALL_DIR="/usr/local/bin"
 BIN_NAME="darwin-amd64"
 
@@ -68,6 +65,10 @@ else
     if exists apt-get; then
         apt-get update
         apt-get install -y wget
+    fi
+
+    if exists yum; then
+        yum install -y wget
     fi
 
     # --------------------------- yum ---------------------------

@@ -42,9 +42,14 @@ func Run(o *Options) error {
 	cobra.Flags().Set("interactive", "1")
 	cobra.Flags().Set("tty", "1")
 
-	// Bootstrap ~/.klone -> /tmp/klone
+	// Bootstrap /tmp/klone
 	cobra.Flags().Set("volume", fmt.Sprintf("%s:/tmp/klone", path.Dir(bootstrapFile)))
 
+	// Bootstrap ~/.ssh
+	cobra.Flags().Set("volume", fmt.Sprintf("%s/.ssh:/root/.ssh", local.Home()))
+
+	// Bootstrap command
+	o.Command = append([]string{"bash", "/tmp/klone/BOOTSTRAP.sh", o.Query}, o.Command...)
 	err = cobra.RunE(cobra, append([]string{o.name}, o.Command...))
 	if err != nil {
 		return err
@@ -76,6 +81,7 @@ func ensureBootstrapFileLocal() error {
 		local.PrintExclaimf("Found local hack directory")
 		localBootstrapFile := fmt.Sprintf("%s/hack/BOOTSTRAP.sh", wd)
 		local.SPutContent(local.Version, fmt.Sprintf("%s/hack/version", wd))
+		local.SPutContent(local.SGetContent(fmt.Sprintf("%s/.klone/auth", local.Home())), fmt.Sprintf("%s/hack/auth", wd))
 		bootstrapFile = localBootstrapFile
 		return nil
 	}
