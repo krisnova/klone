@@ -16,7 +16,7 @@ import (
 type Options struct {
 	Query   string
 	Image   string
-	name    string
+	root    string
 	Command []string
 }
 
@@ -73,23 +73,23 @@ func (o *Options) init() {
 	if strings.Contains(o.Image, ":") {
 		spl := strings.Split(o.Image, ":")
 		if len(spl) > 1 {
-			o.name = spl[0]
+			o.root = spl[0]
 		}
 
 	}
 	if strings.Contains(o.Image, "/") {
 		spl := strings.Split(o.Image, "/")
 		if len(spl) > 1 {
-			o.name = spl[0]
+			o.root = spl[0]
 		}
 
 	}
-	if o.name == "" {
-		o.name = o.Image
+	if o.root == "" {
+		o.root = o.Image
 	}
-	o.name = strings.Replace(o.name, "/", "", -1)
-	o.name = strings.Replace(o.name, ":", "", -1)
-	o.name = strings.Replace(o.name, "_", "", -1)
+	o.root = strings.Replace(o.root, "/", "", -1)
+	o.root = strings.Replace(o.root, ":", "", -1)
+	o.root = strings.Replace(o.root, "_", "", -1)
 }
 
 var bootstrapFile = fmt.Sprintf("%s/.klone/BOOTSTRAP.sh", local.Home())
