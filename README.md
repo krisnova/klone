@@ -1,14 +1,16 @@
 # About
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/kris-nova/klone)](https://goreportcard.com/report/github.com/kris-nova/klone)
+
+
 `klone` is a command line tool that makes it easy to start working with a git repository.
 
-`klone` can can check out an arbitrary github repository and run it in any container you like.
+`klone` can can check out an arbitrary github repository and run it in any Docker container you like.
 
 <p align="center">
   <img src="doc/img/docker.png"> </image>
 </p>
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/kris-nova/klone)](https://goreportcard.com/report/github.com/kris-nova/klone)
 
 # Installing
 
@@ -16,7 +18,7 @@
 go get -u github.com/kris-nova/klone
 ```
 
-# Example (kloning in a docker container)
+# Example (kloning in a Docker container)
 
 A user can easily go from an arbitrary github repository, to a docker container of their choice.
 
@@ -24,7 +26,7 @@ A user can easily go from an arbitrary github repository, to a docker container 
 klone docker -c golang:1.8.3
 ```
 
-Will use `docker` to checkout the `github.com/docker/docker` repository on a `golang:1.8.3` docker image.
+Will use `docker` to checkout the `github.com/docker/docker` repository on a `golang:1.8.3` Docker image.
 
 `klone` will run itself inside the container and use the exact same logic it would use if running locally (which is described below).
 
