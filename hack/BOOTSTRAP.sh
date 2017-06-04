@@ -22,8 +22,6 @@
 # BOOTSTRAP.sh will bootstrap and run klone on any system
 # Usage: BOOTSTRAP.sh <query> <bash:command>
 
-mv /tmp/klone ~/.klone
-
 if [ -z "$1" ]; then
     echo "Usage: BOOTSTRAP.sh <query> <command>"
     exit 1
@@ -34,6 +32,8 @@ CMD=""
 if [ -n "$2" ]; then
     CMD=${2}
 fi
+
+cp -r /tmp/klone ~/.klone
 
 exists() {
   command -v "$1" >/dev/null 2>&1
