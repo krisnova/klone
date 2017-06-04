@@ -5,6 +5,7 @@ import (
 	"github.com/docker/cli/cli/command"
 	"github.com/docker/cli/cli/command/container"
 	cliflags "github.com/docker/cli/cli/flags"
+	"github.com/google/uuid"
 	"github.com/kris-nova/klone/pkg/local"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +18,7 @@ type Options struct {
 	Query   string
 	Image   string
 	root    string
+	name    string
 	Command []string
 }
 
@@ -26,7 +28,7 @@ func Run(o *Options) error {
 	if err != nil {
 		return fmt.Errorf("Unable to ensure local bootstrap file: %v", err)
 	}
-	local.Printf("Running in container [%s]", o.Image)
+	local.Printf("Running container [%s] with image [%s]", o.name, o.Image)
 	cli := command.NewDockerCli(os.Stdin, os.Stdout, os.Stderr)
 	opts := &cliflags.ClientOptions{
 		Common: &cliflags.CommonOptions{},
@@ -90,6 +92,13 @@ func (o *Options) init() {
 	o.root = strings.Replace(o.root, "/", "", -1)
 	o.root = strings.Replace(o.root, ":", "", -1)
 	o.root = strings.Replace(o.root, "_", "", -1)
+	u, err := uuid.NewRandom()
+	if err != nil {
+		local.RecoverableErrorf("Unable to generate UUID: %v", err)
+		o.name = o.root
+		return
+	}
+	o.name = fmt.Sprintf("%s_%s", o.root, u.String())
 }
 
 var bootstrapFile = fmt.Sprintf("%s/.klone/BOOTSTRAP.sh", local.Home())

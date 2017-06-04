@@ -33,12 +33,12 @@ func PrintPrompt(msg string) {
 }
 
 func RecoverableErrorf(msg string, a ...interface{}) {
-	b := fmt.Sprintf("[klone]: [Recoverable Error]:  %s", msg)
+	b := fmt.Sprintf("[klone]: Recoverable Error:  %s", msg)
 	color.Cyan(b, a)
 }
 
 func RecoverableError(msg string) {
-	b := fmt.Sprintf("[klone]: [Recoverable Error]:  %s", msg)
+	b := fmt.Sprintf("[klone]: Recoverable Error:  %s", msg)
 	color.Cyan(b)
 }
 

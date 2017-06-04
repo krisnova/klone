@@ -95,7 +95,7 @@ else
 fi
 
 cd ~
-klone ${QUERY}
+klone -B ${QUERY}
 if [ -n "$CMD" ]; then
     eval ${CMD}
 fi
