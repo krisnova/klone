@@ -9,6 +9,13 @@ build: clean build-linux-amd64 build-darwin-amd64 build-freebsd-amd64 build-wind
 clean:
 	rm -rf bin/*
 
+gofmt:
+	gofmt -w ./cmd
+	gofmt -w ./pkg
+	gofmt -w ./hack
+	gofmt -w ./e2e
+	gofmt -w ./doc
+
 # Because of https://github.com/golang/go/issues/6376 We actually have to build this in a container
 build-linux-amd64:
 	docker run \

@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="doc/img/docker.png"> </image>
+</p>
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/kris-nova/klone)](https://goreportcard.com/report/github.com/kris-nova/klone)
+
 # About
 
 `klone` is a command line tool that makes it easy to start working with a git repository.
@@ -9,10 +15,6 @@ go get -u github.com/kris-nova/klone
 ```
 
 # Example (kloning in a docker container)
-
-<p align="center">
-  <img src="doc/img/docker.png"> </image>
-</p>
 
 A user can easily go from an arbitrary github repository, to a docker container of their choice.
 
